@@ -28,6 +28,8 @@ class AudioManager {
 
 	public static function init (context:AudioContext = null) {
 
+		trace("init");
+		
 		if (AudioManager.context == null) {
 
 			if (context == null) {
@@ -68,6 +70,8 @@ class AudioManager {
 
 	public static function resume ():Void {
 
+		trace("resume");
+
 		#if !lime_doc_gen
 		if (context != null && context.type == OPENAL) {
 
@@ -90,6 +94,8 @@ class AudioManager {
 
 	public static function shutdown ():Void {
 
+		trace("shutdown");
+		
 		#if !lime_doc_gen
 		if (context != null && context.type == OPENAL) {
 
@@ -120,6 +126,8 @@ class AudioManager {
 
 	public static function suspend ():Void {
 
+		trace("suspend");
+		
 		#if !lime_doc_gen
 		if (context != null && context.type == OPENAL) {
 

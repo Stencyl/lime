@@ -11,6 +11,7 @@ abstract ALBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 
 	@:noCompletion private inline function new (handle:CFFIPointer) {
 
+		trace("lime.media.openal.ALBuffer.new");
 		this = handle;
 
 	}

@@ -45,6 +45,7 @@ class NativeAudioSource {
 
 	public function new (parent:AudioSource) {
 
+		trace("lime._internal.backend.native.NativeAudioSource.new");
 		this.parent = parent;
 
 		position = new Vector4 ();
@@ -55,6 +56,7 @@ class NativeAudioSource {
 
 	public function dispose ():Void {
 
+		trace("lime._internal.backend.native.NativeAudioSource.dispose");
 		if (handle != null) {
 
 			stop ();
@@ -69,6 +71,7 @@ class NativeAudioSource {
 
 	public function init ():Void {
 
+		trace("lime._internal.backend.native.NativeAudioSource.init");
 		dataLength = 0;
 		format = 0;
 
@@ -148,6 +151,7 @@ class NativeAudioSource {
 
 	public function play ():Void {
 
+		trace("lime._internal.backend.native.NativeAudioSource.play");
 		/*var pitch:Float = AL.getSourcef (handle, AL.PITCH);
 		trace(pitch);
 		AL.sourcef (handle, AL.PITCH, pitch*0.9);
@@ -208,6 +212,7 @@ class NativeAudioSource {
 
 	public function pause ():Void {
 
+		trace("lime._internal.backend.native.NativeAudioSource.pause");
 		playing = false;
 
 		if (handle == null) return;
@@ -230,12 +235,15 @@ class NativeAudioSource {
 
 	private function readVorbisFileBuffer (vorbisFile:VorbisFile, length:Int):UInt8Array {
 
+		trace("lime._internal.backend.native.NativeAudioSource.readVorbisFileBuffer");
 		#if lime_vorbis
 
 		var buffer = new UInt8Array (length);
 		var read = 0, total = 0, readMax;
 
-		while (total < length) {
+		var i = 0;
+		
+		while (total < length) { ++i;
 
 			readMax = 4096;
 
@@ -258,6 +266,8 @@ class NativeAudioSource {
 			}
 
 		}
+		
+		//trace("lime.media.vorbis.VorbisFile.read x" + i);
 
 		return buffer;
 
@@ -270,8 +280,12 @@ class NativeAudioSource {
 	}
 
 
+	private var lastCall:Float = 0;
+
 	private function refillBuffers (buffers:Array<ALBuffer> = null):Void {
 
+		trace("lime._internal.backend.native.NativeAudioSource.refillBuffers " + buffers + " after time: " + (haxe.Timer.stamp() - lastCall));
+		lastCall = haxe.Timer.stamp();
 		#if lime_vorbis
 
 		var vorbisFile = null;
@@ -280,6 +294,7 @@ class NativeAudioSource {
 		if (buffers == null) {
 
 			var buffersProcessed:Int = AL.getSourcei (handle, AL.BUFFERS_PROCESSED);
+			//trace(handle + " - " + buffersProcessed);
 
 			if (buffersProcessed > 0) {
 
@@ -297,9 +312,12 @@ class NativeAudioSource {
 		}
 
 		if (buffers != null) {
+		
+			//trace(buffers);
 
 			if (vorbisFile == null) {
 
+				//trace("NULL VORBIS FILE");
 				vorbisFile = parent.buffer.__srcVorbisFile;
 				position = Int64.toInt (vorbisFile.pcmTell ());
 
@@ -324,6 +342,10 @@ class NativeAudioSource {
 					numBuffers++;
 					break;
 
+				} else {
+				
+					//trace("uhh");
+				
 				}
 
 			}
@@ -339,6 +361,7 @@ class NativeAudioSource {
 
 	public function stop ():Void {
 
+		trace("lime._internal.backend.native.NativeAudioSource.stop");
 		if (playing && handle != null && AL.getSourcei (handle, AL.SOURCE_STATE) == AL.PLAYING) {
 
 			AL.sourceStop (handle);
@@ -378,6 +401,7 @@ class NativeAudioSource {
 
 	private function timer_onRun ():Void {
 
+		trace("lime._internal.backend.native.NativeAudioSource.timer_onRun");
 		if (loops > 0) {
 
 			playing = false;
@@ -442,6 +466,7 @@ class NativeAudioSource {
 
 	public function setCurrentTime (value:Int):Int {
 
+		trace("lime._internal.backend.native.NativeAudioSource.setCurrentTime");
 		if (handle != null) {
 
 			if (stream) {
@@ -522,6 +547,7 @@ class NativeAudioSource {
 
 	public function setGain (value:Float):Float {
 
+		trace("lime._internal.backend.native.NativeAudioSource.setGain");
 		if (handle != null) {
 
 			AL.sourcef (handle, AL.GAIN, value);
@@ -548,6 +574,7 @@ class NativeAudioSource {
 
 	public function setLength (value:Int):Int {
 
+		trace("lime._internal.backend.native.NativeAudioSource.setLength");
 		if (playing && length != value) {
 
 			if (timer != null) {
@@ -581,6 +608,7 @@ class NativeAudioSource {
 
 	public function setLoops (value:Int):Int {
 
+		trace("lime._internal.backend.native.NativeAudioSource.setLoops");
 		return loops = value;
 
 	}
@@ -606,6 +634,7 @@ class NativeAudioSource {
 
 	public function setPosition (value:Vector4):Vector4 {
 
+		trace("lime._internal.backend.native.NativeAudioSource.setPosition");
 		position.x = value.x;
 		position.y = value.y;
 		position.z = value.z;

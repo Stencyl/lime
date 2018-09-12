@@ -18,6 +18,7 @@ class VorbisFile {
 
 	@:noCompletion private function new (handle:Dynamic) {
 
+		trace("lime.media.vorbis.VorbisFile.new");
 		this.handle = handle;
 
 	}
@@ -25,6 +26,7 @@ class VorbisFile {
 
 	public function bitrate (bitstream:Int = -1):Int {
 
+		trace("lime.media.vorbis.VorbisFile.bitrate");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_bitrate (handle, bitstream);
 		#else
@@ -36,6 +38,7 @@ class VorbisFile {
 
 	public function bitrateInstant ():Int {
 
+		trace("lime.media.vorbis.VorbisFile.bitrateInstant");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_bitrate_instant (handle);
 		#else
@@ -47,6 +50,7 @@ class VorbisFile {
 
 	public function clear ():Void {
 
+		trace("lime.media.vorbis.VorbisFile.clear");
 		#if (lime_cffi && lime_vorbis && !macro)
 		NativeCFFI.lime_vorbis_file_clear (handle);
 		#end
@@ -56,6 +60,7 @@ class VorbisFile {
 
 	public function comment (bitstream:Int = -1):VorbisComment {
 
+		trace("lime.media.vorbis.VorbisFile.comment");
 		#if (lime_cffi && lime_vorbis && !macro)
 		var data = NativeCFFI.lime_vorbis_file_comment (handle, bitstream);
 
@@ -76,6 +81,7 @@ class VorbisFile {
 
 	public function crosslap (other:VorbisFile):Int {
 
+		trace("lime.media.vorbis.VorbisFile.crosslap");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_crosslap (handle, other.handle);
 		#else
@@ -87,6 +93,7 @@ class VorbisFile {
 
 	public static function fromBytes (bytes:Bytes):VorbisFile {
 
+		trace("lime.media.vorbis.VorbisFile.fromBytes");
 		#if (lime_cffi && lime_vorbis && !macro)
 		var handle = NativeCFFI.lime_vorbis_file_from_bytes (bytes);
 
@@ -104,6 +111,7 @@ class VorbisFile {
 
 	public static function fromFile (path:String):VorbisFile {
 
+		trace("lime.media.vorbis.VorbisFile.fromFile");
 		#if (lime_cffi && lime_vorbis && !macro)
 		var handle = NativeCFFI.lime_vorbis_file_from_file (path);
 
@@ -121,6 +129,7 @@ class VorbisFile {
 
 	public function info (bitstream:Int = -1):VorbisInfo {
 
+		trace("lime.media.vorbis.VorbisFile.info");
 		#if (lime_cffi && lime_vorbis && !macro)
 		var data = NativeCFFI.lime_vorbis_file_info (handle, bitstream);
 
@@ -145,6 +154,7 @@ class VorbisFile {
 
 	public function pcmSeek (pos:Int64):Int {
 
+		trace("lime.media.vorbis.VorbisFile.pcmSeek");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_pcm_seek (handle, pos.low, pos.high);
 		#else
@@ -156,6 +166,7 @@ class VorbisFile {
 
 	public function pcmSeekLap (pos:Int64):Int {
 
+		trace("lime.media.vorbis.VorbisFile.pcmSeekLap");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_pcm_seek_lap (handle, pos.low, pos.high);
 		#else
@@ -167,6 +178,7 @@ class VorbisFile {
 
 	public function pcmSeekPage (pos:Int64):Int {
 
+		trace("lime.media.vorbis.VorbisFile.pcmSeekPage");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_pcm_seek_page (handle, pos.low, pos.high);
 		#else
@@ -178,6 +190,7 @@ class VorbisFile {
 
 	public function pcmSeekPageLap (pos:Int64):Int {
 
+		trace("lime.media.vorbis.VorbisFile.pcmSeekPageLap");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_pcm_seek_page_lap (handle, pos.low, pos.high);
 		#else
@@ -189,6 +202,7 @@ class VorbisFile {
 
 	public function pcmTell ():Int64 {
 
+		trace("lime.media.vorbis.VorbisFile.pcmTell");
 		#if (lime_cffi && lime_vorbis && !macro)
 		var data = NativeCFFI.lime_vorbis_file_pcm_tell (handle);
 
@@ -207,6 +221,7 @@ class VorbisFile {
 
 	public function pcmTotal (bitstream:Int = -1):Int64 {
 
+		trace("lime.media.vorbis.VorbisFile.pcmTotal");
 		#if (lime_cffi && lime_vorbis && !macro)
 		var data = NativeCFFI.lime_vorbis_file_pcm_total (handle, bitstream);
 
@@ -224,6 +239,7 @@ class VorbisFile {
 
 	public function rawSeek (pos:Int64):Int {
 
+		trace("lime.media.vorbis.VorbisFile.rawSeek");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_raw_seek (handle, pos.low, pos.high);
 		#else
@@ -235,6 +251,7 @@ class VorbisFile {
 
 	public function rawSeekLap (pos:Int64):Int {
 
+		trace("lime.media.vorbis.VorbisFile.rawSeekLap");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_raw_seek_lap (handle, pos.low, pos.high);
 		#else
@@ -247,6 +264,7 @@ class VorbisFile {
 	public function rawTell ():Int64 {
 
 
+		trace("lime.media.vorbis.VorbisFile.rawTell");
 		#if (lime_cffi && lime_vorbis && !macro)
 		var data = NativeCFFI.lime_vorbis_file_raw_tell (handle);
 
@@ -264,6 +282,7 @@ class VorbisFile {
 
 	public function rawTotal (bitstream:Int = -1):Int64 {
 
+		trace("lime.media.vorbis.VorbisFile.rawTotal");
 		#if (lime_cffi && lime_vorbis && !macro)
 		var data = NativeCFFI.lime_vorbis_file_raw_total (handle, bitstream);
 
@@ -298,6 +317,7 @@ class VorbisFile {
 
 	public function readFloat (pcmChannels:Bytes, samples:Int):Int {
 
+		trace("lime.media.vorbis.VorbisFile.readFloat");
 		#if (lime_cffi && lime_vorbis && !macro)
 		var data = NativeCFFI.lime_vorbis_file_read_float (handle, pcmChannels, samples);
 		if (data == null) return 0;
@@ -312,6 +332,7 @@ class VorbisFile {
 
 	public function seekable ():Bool {
 
+		trace("lime.media.vorbis.VorbisFile.seekable");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_seekable (handle);
 		#else
@@ -323,6 +344,7 @@ class VorbisFile {
 
 	public function serialNumber (bitstream:Int = -1):Int {
 
+		trace("lime.media.vorbis.VorbisFile.serialNumber");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_serial_number (handle, bitstream);
 		#else
@@ -334,6 +356,7 @@ class VorbisFile {
 
 	public function streams ():Int {
 
+		trace("lime.media.vorbis.VorbisFile.streams");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_streams (handle);
 		#else
@@ -345,6 +368,7 @@ class VorbisFile {
 
 	public function timeSeek (s:Float):Int {
 
+		trace("lime.media.vorbis.VorbisFile.timeSeek");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_time_seek (handle, s);
 		#else
@@ -356,6 +380,7 @@ class VorbisFile {
 
 	public function timeSeekLap (s:Float):Int {
 
+		trace("lime.media.vorbis.VorbisFile.timeSeekLap");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_time_seek_lap (handle, s);
 		#else
@@ -367,6 +392,7 @@ class VorbisFile {
 
 	public function timeSeekPage (s:Float):Int {
 
+		trace("lime.media.vorbis.VorbisFile.timeSeekPage");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_time_seek_page (handle, s);
 		#else
@@ -378,6 +404,7 @@ class VorbisFile {
 
 	public function timeSeekPageLap (s:Float):Int {
 
+		trace("lime.media.vorbis.VorbisFile.timeSeekPageLap");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_time_seek_page_lap (handle, s);
 		#else
@@ -389,6 +416,7 @@ class VorbisFile {
 
 	public function timeTell ():Float {
 
+		trace("lime.media.vorbis.VorbisFile.timeTell");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_time_tell (handle);
 		#else
@@ -400,6 +428,7 @@ class VorbisFile {
 
 	public function timeTotal (bitstream:Int = -1):Float {
 
+		trace("lime.media.vorbis.VorbisFile.timeTotal");
 		#if (lime_cffi && lime_vorbis && !macro)
 		return NativeCFFI.lime_vorbis_file_time_total (handle, bitstream);
 		#else

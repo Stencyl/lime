@@ -590,6 +590,24 @@ class NativeApplication {
 	private function handleWindowEvent ():Void {
 
 		var window = parent.__windowByID.get (windowEventInfo.windowID);
+		
+		switch (windowEventInfo.type) {
+
+			case WINDOW_ACTIVATE: trace("WINDOW_ACTIVATE");
+			case WINDOW_CLOSE: trace("WINDOW_CLOSE");
+			case WINDOW_DEACTIVATE: trace("WINDOW_DEACTIVATE");
+			case WINDOW_ENTER: trace("WINDOW_ENTER");
+			case WINDOW_EXPOSE: trace("WINDOW_EXPOSE");
+			case WINDOW_FOCUS_IN: trace("WINDOW_FOCUS_IN");
+			case WINDOW_FOCUS_OUT: trace("WINDOW_FOCUS_OUT");
+			case WINDOW_LEAVE: trace("WINDOW_LEAVE");
+			case WINDOW_MAXIMIZE: trace("WINDOW_MAXIMIZE");
+			case WINDOW_MINIMIZE: trace("WINDOW_MINIMIZE");
+			case WINDOW_MOVE: trace("WINDOW_MOVE");
+			case WINDOW_RESIZE: trace("WINDOW_RESIZE");
+			case WINDOW_RESTORE: trace("WINDOW_RESTORE");
+			
+		}
 
 		if (window != null) {
 

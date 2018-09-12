@@ -424,7 +424,7 @@ class Application extends Module {
 	/**
 		Called when a window deactivate event is fired on the primary window
 	**/
-	public function onWindowDeactivate ():Void { }
+	public function onWindowDeactivate ():Void {  trace("deactivate");  }
 
 
 	/**
@@ -454,7 +454,7 @@ class Application extends Module {
 	/**
 		Called when a window focus out event is fired on the primary window
 	**/
-	public function onWindowFocusOut ():Void { }
+	public function onWindowFocusOut ():Void { trace("focus out"); }
 
 
 	/**
@@ -466,7 +466,7 @@ class Application extends Module {
 	/**
 		Called when a window leave event is fired on the primary window
 	**/
-	public function onWindowLeave ():Void { }
+	public function onWindowLeave ():Void {  trace("leave");  }
 
 
 	/**
@@ -474,7 +474,7 @@ class Application extends Module {
 		@param	x	The x position of the window in desktop coordinates
 		@param	y	The y position of the window in desktop coordinates
 	**/
-	public function onWindowMove (x:Float, y:Float):Void { }
+	public function onWindowMove (x:Float, y:Float):Void {  }
 
 
 	/**

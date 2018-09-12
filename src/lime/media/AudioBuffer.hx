@@ -68,12 +68,14 @@ class AudioBuffer {
 
 	public function new () {
 
-
+		trace("lime.media.AudioBuffer.new");
 
 	}
 
 
 	public function dispose ():Void {
+	
+		trace("lime.media.AudioBuffer.dispose");
 
 		#if (js && html5 && lime_howlerjs)
 
@@ -85,6 +87,8 @@ class AudioBuffer {
 
 
 	public static function fromBase64 (base64String:String):AudioBuffer {
+
+		trace("lime.media.AudioBuffer.fromBase64");
 
 		if (base64String == null) return null;
 
@@ -142,6 +146,8 @@ class AudioBuffer {
 
 	public static function fromBytes (bytes:Bytes):AudioBuffer {
 
+		trace("lime.media.AudioBuffer.fromBytes");
+		
 		if (bytes == null) return null;
 
 		#if (js && html5 && lime_howlerjs)
@@ -184,6 +190,8 @@ class AudioBuffer {
 
 	public static function fromFile (path:String):AudioBuffer {
 
+		trace("lime.media.AudioBuffer.fromFile");
+	
 		if (path == null) return null;
 
 		#if (js && html5 && lime_howlerjs)
@@ -242,6 +250,8 @@ class AudioBuffer {
 
 	public static function fromFiles (paths:Array<String>):AudioBuffer {
 
+		trace("lime.media.AudioBuffer.fromFiles");
+		
 		#if (js && html5 && lime_howlerjs)
 
 		var audioBuffer = new AudioBuffer ();
@@ -270,6 +280,8 @@ class AudioBuffer {
 
 	public static function fromVorbisFile (vorbisFile:VorbisFile):AudioBuffer {
 
+		trace("lime.media.AudioBuffer.fromVorbisFile");
+
 		if (vorbisFile == null) return null;
 
 		var info = vorbisFile.info ();
@@ -287,6 +299,8 @@ class AudioBuffer {
 	#else
 
 	public static function fromVorbisFile (vorbisFile:Dynamic):AudioBuffer {
+	
+		trace("lime.media.AudioBuffer.fromVorbisFile");
 
 		return null;
 
@@ -296,6 +310,8 @@ class AudioBuffer {
 
 
 	public static function loadFromFile (path:String):Future<AudioBuffer> {
+
+		trace("lime.media.AudioBuffer.loadFromFile");
 
 		#if (flash || (js && html5))
 
@@ -381,6 +397,8 @@ class AudioBuffer {
 
 	public static function loadFromFiles (paths:Array<String>):Future<AudioBuffer> {
 
+		trace("lime.media.AudioBuffer.loadFromFiles");
+
 		var promise = new Promise<AudioBuffer> ();
 
 		#if (js && html5 && lime_howlerjs)
@@ -421,6 +439,8 @@ class AudioBuffer {
 
 
 	private static function __getCodec (bytes:Bytes):String {
+
+		trace("lime.media.AudioBuffer.__getCodec");
 
 		var signature = bytes.getString (0, 4);
 
@@ -483,6 +503,8 @@ class AudioBuffer {
 
 
 	@:noCompletion private function set_src (value:Dynamic):Dynamic {
+
+		trace("lime.media.AudioBuffer.set_src");
 
 		#if (js && html5)
 		#if lime_howlerjs
