@@ -307,6 +307,14 @@ class NativeAudioSource {
 
 				}
 
+			} else {
+				
+				if (playing && handle != null && AL.getSourcei (handle, AL.SOURCE_STATE) != AL.PLAYING) {
+
+					setCurrentTime (getCurrentTime ());
+				
+				}
+				
 			}
 
 		}
