@@ -28,7 +28,7 @@
                             </imageView>
                         </subviews>
                         ::if bg::
-                        <color key="backgroundColor" red="::bg_red::" green="::bg_green::" blue="::bg_blue::" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="::bg.r::" green="::bg.g::" blue="::bg.b::" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         ::else::
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         ::end::

@@ -1384,22 +1384,38 @@ class ProjectXMLParser extends HXProject
 						{
 							launchStoryboard.template = substitute(element.att.template);
 							launchStoryboard.templateContext = {};
-							
+
 							for (attr in element.x.attributes())
 							{
 								if (attr == "assetsPath") continue;
 								
-								var value = element.x.get(attr);
-								Reflect.setField(launchStoryboard.templateContext, attr, value);
-								
-								if (value.length == 8 && value.substr(0,2) == "0x")
+								var valueType = "String";
+								var valueName = attr;
+
+								if (valueName.indexOf(":") != -1)
 								{
-									var c = Std.parseInt(value);
-									
-									Reflect.setField(launchStoryboard.templateContext, attr + "_red", ((c >> 16) & 0xFF) / 255);
-									Reflect.setField(launchStoryboard.templateContext, attr + "_green", ((c >> 8) & 0xFF) / 255);
-									Reflect.setField(launchStoryboard.templateContext, attr + "_blue", (c & 0xFF) / 255);
+									valueType = valueName.substring(valueName.lastIndexOf(":") + 1);
+									valueName = valueName.substring(0, valueName.lastIndexOf(":"));
 								}
+
+								var stringValue = element.x.get(attr);
+								var value:Dynamic;
+
+								switch(valueType)
+								{
+									case "Int":
+										value = Std.parseInt(stringValue);
+									case "RGB":
+										var rgb:lime.math.ARGB = Std.parseInt(stringValue);
+										value = {r: rgb.r/255, g: rgb.g/255, b: rgb.b/255};
+									case "String":
+										value = stringValue;
+									default:
+										Log.warn("Ignoring unknown value type \"" + valueType + "\" in storyboard configuration.");
+										value = "";
+								}
+
+								Reflect.setField(launchStoryboard.templateContext, valueName, value);
 							}
 						}
 						
