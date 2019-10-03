@@ -206,14 +206,17 @@ class AssetLibrary
 
 	public function getBytes(id:String):Bytes
 	{
+		trace(id);
 		if (cachedBytes.exists(id))
 		{
+			trace(cachedBytes.get(id));
 			return cachedBytes.get(id);
 		}
 		else if (cachedText.exists(id))
 		{
 			var bytes = Bytes.ofString(cachedText.get(id));
 			cachedBytes.set(id, bytes);
+			trace(bytes);
 			return bytes;
 		}
 		else if (classTypes.exists(id))
@@ -239,6 +242,7 @@ class AssetLibrary
 		}
 		else
 		{
+			trace(paths.get(id));
 			return Bytes.fromFile(paths.get(id));
 		}
 	}
@@ -370,6 +374,7 @@ class AssetLibrary
 
 	public function loadAsset(id:String, type:String):Future<Dynamic>
 	{
+		trace(id + ", " + type);
 		return switch (type)
 		{
 			case BINARY: loadBytes(id);
@@ -402,7 +407,7 @@ class AssetLibrary
 			{
 				if (!preload.get(id)) continue;
 
-				Log.verbose("Preloading asset: " + id + " [" + types.get(id) + "]");
+				trace("Preloading asset: " + id + " [" + types.get(id) + "]");
 
 				switch (types.get(id))
 				{
@@ -481,6 +486,7 @@ class AssetLibrary
 
 	public function loadBytes(id:String):Future<Bytes>
 	{
+		trace(paths.get(id));
 		if (cachedBytes.exists(id))
 		{
 			return Future.withValue(cachedBytes.get(id));

@@ -61,6 +61,9 @@ class AssetManifest
 		path = __resolvePath(path);
 		rootPath = __resolveRootPath(rootPath, path);
 
+		trace(path);
+		trace(rootPath);
+
 		if (path == null) return null;
 
 		return Bytes.loadFromFile(path).then(function(bytes)
@@ -71,10 +74,15 @@ class AssetManifest
 
 	public static function parse(data:String, rootPath:String = null):AssetManifest
 	{
+		trace("parse");
+		trace(data);
+		trace(rootPath);
+
 		if (data == null || data == "") return null;
 
 		#if !macro
 		var manifestData = Json.parse(data);
+		trace(manifestData);
 		var manifest = new AssetManifest();
 
 		if (Reflect.hasField(manifestData, "name"))

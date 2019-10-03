@@ -113,13 +113,17 @@ class Assets
 		}
 
 		var symbol = new LibrarySymbol(id);
+		trace(symbol);
 
 		if (symbol.library != null)
 		{
+			trace(symbol.library);
 			if (symbol.exists(type))
 			{
+				trace("exists");
 				if (symbol.isLocal(type))
 				{
+					trace("isLocal");
 					var asset = symbol.library.getAsset(symbol.symbolName, type);
 
 					if (useCache && cache.enabled)
@@ -167,6 +171,7 @@ class Assets
 	 */
 	public static function getBytes(id:String):Bytes
 	{
+		trace(id);
 		return cast getAsset(id, BINARY, false);
 	}
 
@@ -345,9 +350,12 @@ class Assets
 		}
 
 		var symbol = new LibrarySymbol(id);
+		trace(symbol);
 
 		if (symbol.library != null)
 		{
+			trace(symbol.library);
+
 			if (symbol.exists(type))
 			{
 				var future = symbol.library.loadAsset(symbol.symbolName, type);
@@ -441,6 +449,8 @@ class Assets
 			{
 				path = libraryPaths[id];
 				rootPath = (defaultRootPath != "" ? defaultRootPath + "/" : "") + Path.directory(path);
+				trace(path);
+				trace(rootPath);
 			}
 			else
 			{
@@ -452,6 +462,8 @@ class Assets
 
 				rootPath = (defaultRootPath != "" ? defaultRootPath + "/" : "") + Path.directory(path);
 				path = __cacheBreak(path);
+				trace(path);
+				trace(rootPath);
 			}
 
 			AssetManifest.loadFromFile(path, rootPath).onComplete(function(manifest)
