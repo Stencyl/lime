@@ -1,8 +1,10 @@
 package flash.desktop;
 
-@:fakeEnum(String) extern enum NativeDragActions {
-	COPY;
-	LINK;
-	MOVE;
-	NONE;
+@:native("flash.desktop.NativeDragActions")
+@:enum extern abstract NativeDragActions(String)
+{
+	var COPY;
+	var LINK;
+	var MOVE;
+	var NONE;
 }

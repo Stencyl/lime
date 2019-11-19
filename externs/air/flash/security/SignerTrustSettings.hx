@@ -1,7 +1,9 @@
 package flash.security;
 
-@:fakeEnum(String) extern enum SignerTrustSettings {
-	CODE_SIGNING;
-	PLAYLIST_SIGNING;
-	SIGNING;
+@:native("flash.security.SignerTrustSettings")
+@:enum extern abstract SignerTrustSettings(String)
+{
+	var CODE_SIGNING;
+	var PLAYLIST_SIGNING;
+	var SIGNING;
 }

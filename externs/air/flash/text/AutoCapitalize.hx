@@ -1,8 +1,10 @@
 package flash.text;
 
-@:fakeEnum(String) extern enum AutoCapitalize {
-	ALL;
-	NONE;
-	SENTENCE;
-	WORD;
+@:native("flash.text.AutoCapitalize")
+@:enum extern abstract AutoCapitalize(String)
+{
+	var ALL;
+	var NONE;
+	var SENTENCE;
+	var WORD;
 }

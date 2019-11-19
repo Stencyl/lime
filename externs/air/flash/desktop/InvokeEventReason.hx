@@ -1,8 +1,10 @@
 package flash.desktop;
 
-@:fakeEnum(String) extern enum InvokeEventReason {
-	LOGIN;
-	NOTIFICATION;
-	OPEN_URL;
-	STANDARD;
+@:native("flash.desktop.InvokeEventReason")
+@:enum extern abstract InvokeEventReason(String)
+{
+	var LOGIN;
+	var NOTIFICATION;
+	var OPEN_URL;
+	var STANDARD;
 }

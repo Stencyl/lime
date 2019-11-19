@@ -1,6 +1,8 @@
 package flash.desktop;
 
-@:fakeEnum(String) extern enum NotificationType {
-	CRITICAL;
-	INFORMATIONAL;
+@:native("flash.desktop.NotificationType")
+@:enum extern abstract NotificationType(String)
+{
+	var CRITICAL;
+	var INFORMATIONAL;
 }

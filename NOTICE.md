@@ -2,7 +2,7 @@ Notices
 =======
 
 ### Lime
-Copyright (c) 2013-2018 Joshua Granick and other Lime contributors
+Copyright (c) 2013-2019 Joshua Granick and other Lime contributors
 
 This product bundles cairo 1.15.2, which is available under an
 "MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).
@@ -18,6 +18,9 @@ This product bundles freetype 2.9.1, which is available under an
 
 This product bundles harfbuzz 1.8.8, which is available under an
 "MIT" license. For details, see [project/lib/harfbuzz/](project/lib).
+
+This product bundles HashLink 1.9, which is available under an
+"MIT" license. For details, see [HaxeFoundation/hashlink/](https://github.com/HaxeFoundation/hashlink/blob/1.9/LICENSE).
 
 This product bundles libjpeg 6b, which is available under a
 "libjpeg" (BSD-style) license. For details, see [project/lib/jpeg/](project/lib).
@@ -43,7 +46,7 @@ This product bundles pixman 0.32.8, which is available under an
 This product bundles libpng 1.6.12, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/png/](project/lib).
 
-This product bundles SDL dev (22a0b777d7cd), which is available under a
+This product bundles SDL revision 24883e864f7e, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/sdl/](project/lib).
 
 This product bundles tinyfiledialogs 2.9.3, which is available under a
@@ -81,8 +84,10 @@ For details, see https://github.com/underscorediscovery/hxtypedarray
 The unifill project is included in the [lime/text/unifill/](lime/text/unifill/) directory,
 which is available under an "MIT" license. For details, see https://github.com/mandel59/unifill
 
-lime/project/Version is adapted from thx.semver project, which is available under
-an "MIT" license. For details, see https://github.com/fponticelli/thx.semver
+lime/_internal/graphics/StackBlur.hx is adapted from original code by Mario Klingemann
+and the EaselJS project, and is available under an "MIT" license. For details, see
+http://www.quasimondo.com/StackBlurForCanvas/StackBlur.js and
+https://github.com/createjs/easeljs
 
 -------
 
@@ -90,7 +95,7 @@ _The following are not embedded in Lime applications directly, but are used
 as dependencies for web-based builds. Their licensing does not affect products
 created with Lime._
 
-This product bundles howler.js 2.1.0, which is available under an
+This product bundles howler.js 2.1.1, which is available under an
 "MIT" license. For details, see [dependencies/howler.min.js](dependencies/howler.min.js).
 
 This product bundles FileSaver.js 1.3.3, which is available under an

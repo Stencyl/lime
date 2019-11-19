@@ -1,7 +1,9 @@
 package flash.data;
 
-@:fakeEnum(String) extern enum SQLColumnNameStyle {
-	DEFAULT;
-	LONG;
-	SHORT;
+@:native("flash.data.SQLColumnNameStyle")
+@:enum extern abstract SQLColumnNameStyle(String)
+{
+	var DEFAULT;
+	var LONG;
+	var SHORT;
 }

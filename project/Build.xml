@@ -1,6 +1,6 @@
 <xml>
 
-	<set name="PLATFORM" value="android-14" if="android" unless="HXCPP_ARM64" />
+	<set name="PLATFORM" value="android-16" if="android" unless="HXCPP_ARM64" />
 	<set name="PLATFORM" value="android-21" if="android HXCPP_ARM64" />
 	<set name="HXCPP_CPP11" value="1" />
 
@@ -9,7 +9,7 @@
 	<set name="ios" value="1" if="iphone" />
 	<set name="tvos" value="1" if="appletv" />
 
-	<set name="LIME_CAIRO" value="1" unless="winrt" />
+	<set name="LIME_CAIRO" value="1"/>
 	<set name="LIME_CURL" value="1" unless="emscripten || winrt" />
 	<set name="LIME_EFSW" value="1" if="windows || mac || linux" unless="winrt" />
 	<set name="LIME_JPEG" value="1" />
@@ -17,7 +17,7 @@
 	<set name="LIME_FREETYPE" value="1" />
 	<set name="LIME_HARFBUZZ" value="1" unless="winrt" />
 	<!-- <set name="LIME_HASHLINK" value="1" if="windows || mac || linux" /> -->
-	<set name="LIME_HASHLINK" value="1" if="hashlink" unless="HXCPP_M64" />
+	<set name="LIME_HASHLINK" value="1" if="hashlink" />
 	<set name="LIME_LZMA" value="1" />
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
@@ -35,14 +35,14 @@
 	<!-- <set name="LIME_SDL_ANGLE" value="1" if="windows" unless="static_link" /> -->
 	<set name="LIME_SDL_ANGLE" value="1" if="windows LIME_SDL_ANGLE" unless="static_link" />
 	<set name="LIME_SDL_ANGLE" value="1" if="windows angle" unless="static_link" />
-	<set name="LIME_SDL_ANGLE" value="1" if="winrt" unless="static_link" />
+	<set name="LIME_SDL_ANGLE" value="1" if="winrt" />
 	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" unless="winrt || emscripten" />
 	<set name="LIME_VORBIS" value="1" />
 	<!-- <set name="LIME_VPX" value="1" />
 	<set name="LIME_WEBM" value="1" /> -->
 	<set name="LIME_ZLIB" value="1" />
 
-	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
+	<set name="OUTPUT_DIR" value="../lib" unless="OUTPUT_DIR" />
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
 
 	<set name="NATIVE_TOOLKIT_HAVE_CAIRO" value="1" if="LIME_CAIRO" />
@@ -219,9 +219,10 @@
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux || rpi"/>
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux" unless="rpi"/>
-				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows"/>
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows" unless="winrt"/>
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac"/>
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/rpi/" if="rpi"/>
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/winrt/" if="winrt"/>
 
 				<compilerflag value="-DHAVE_LIBC" />
 
@@ -389,6 +390,9 @@
 			<ext value=".so" />
 			<ext value=".ndll" if="windows || mac || linux" />
 
+			<!-- TODO: Support single binary? -->
+			<ext value=".hdll" if="LIME_HASHLINK" />
+
 			<section if="windows">
 
 				<lib name="gdi32.lib" />
@@ -405,6 +409,7 @@
 				<lib name="wldap32.lib" />
 				<lib name="shell32.lib" />
 				<lib name="comdlg32.lib" />
+				<lib name="setupapi.lib" />
 
 				<lib name="usp10.lib" if="LIME_HARFBUZZ" />
 				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />
@@ -417,7 +422,7 @@
 				<lib name="Xinput.lib" if="winrt" />
 				<lib name="DXGI.lib" if="winrt" />
 
-				<lib name="-libpath:${HLPATH}" if="LIME_HASHLINK" />
+				<lib name="-libpath:../templates/bin/hl/windows" if="LIME_HASHLINK" />
 				<lib name="libhl.lib" if="LIME_HASHLINK" />
 				<!-- <lib name="-delayload:libhl.dll" /> -->
 
@@ -431,7 +436,7 @@
 				<lib name="-lgc" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
 
-				<lib name="-L${HLPATH}" if="LIME_HASHLINK" />
+				<lib name="-L../templates/bin/hl/linux" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />
 
 			</section>
@@ -455,14 +460,14 @@
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
 
-				<lib name="-L${HLPATH}" if="LIME_HASHLINK" />
+				<lib name="-L../templates/bin/hl/mac" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />
 
 			</section>
 
 			<section if="android">
 
-				<lib name="-L../ndll/Android" />
+				<lib name="-L../lib/Android" />
 
 				<lib name="-ldl" />
 				<lib name="-llog" />

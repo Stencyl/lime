@@ -1,8 +1,8 @@
 import electron.main.App;
 import electron.main.BrowserWindow;
 
-class ElectronSetup {
-
+class ElectronSetup
+{
 	public static var window:BrowserWindow;
 
 	static function main()
@@ -46,28 +46,33 @@ class ElectronSetup {
 			if (height == 0) height = 600;
 			var frame:Bool = window.borderless == false;
 
-			electron.main.App.commandLine.appendSwitch('--autoplay-policy','no-user-gesture-required');
-			
-			electron.main.App.on( 'ready', function(e) {
-				var config:Dynamic = {
-					fullscreen: window.fullscreen,
-					frame:frame,
-					resizable: window.resizable,
-					alwaysOnTop: window.alwaysOnTop,
-					width:width,
-					height:height,
-					webgl:window.hardware
-				};
+			electron.main.App.commandLine.appendSwitch('--autoplay-policy', 'no-user-gesture-required');
+
+			electron.main.App.on('ready', function(e)
+			{
+				var config:Dynamic =
+					{
+						fullscreen: window.fullscreen,
+						frame: frame,
+						resizable: window.resizable,
+						alwaysOnTop: window.alwaysOnTop,
+						width: width,
+						height: height,
+						webgl: window.hardware
+					};
 				ElectronSetup.window = new BrowserWindow(config);
 
-				ElectronSetup.window.on( closed, function() {
-					if( js.Node.process.platform != 'darwin' )
+				ElectronSetup.window.on(closed, function()
+				{
+					if (js.Node.process.platform != 'darwin')
+					{
 						electron.main.App.quit();
+					}
 				});
 
-				ElectronSetup.window.loadURL( 'file://' + js.Node.__dirname + '/index.html' );
+				ElectronSetup.window.loadURL('file://' + js.Node.__dirname + '/index.html');
 				#if (debug && !suppress_devtools)
-					ElectronSetup.window.webContents.openDevTools();
+				ElectronSetup.window.webContents.openDevTools();
 				#end
 			});
 		}
@@ -87,7 +92,7 @@ typedef OpenFLWindow =
 	fullscreen:Bool,
 	hardware:Dynamic,
 	height:Int,
-	hidden: Bool,
+	hidden:Bool,
 	maximized:Bool,
 	minimized:Bool,
 	parameters:Dynamic,

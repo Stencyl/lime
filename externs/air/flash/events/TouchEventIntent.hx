@@ -1,7 +1,9 @@
 package flash.events;
 
-@:fakeEnum(String) extern enum TouchEventIntent {
-	ERASER;
-	PEN;
-	UNKNOWN;
+@:native("flash.events.TouchEventIntent")
+@:enum extern abstract TouchEventIntent(String)
+{
+	var ERASER;
+	var PEN;
+	var UNKNOWN;
 }

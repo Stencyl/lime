@@ -1,8 +1,10 @@
 package flash.text;
 
-@:fakeEnum(String) extern enum StageTextClearButtonMode {
-	ALWAYS;
-	NEVER;
-	UNLESS_EDITING;
-	WHILE_EDITING;
+@:native("flash.text.StageTextClearButtonMode")
+@:enum extern abstract StageTextClearButtonMode(String)
+{
+	var ALWAYS;
+	var NEVER;
+	var UNLESS_EDITING;
+	var WHILE_EDITING;
 }

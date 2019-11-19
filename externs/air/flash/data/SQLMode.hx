@@ -1,7 +1,9 @@
 package flash.data;
 
-@:fakeEnum(String) extern enum SQLMode {
-	CREATE;
-	READ;
-	UPDATE;
+@:native("flash.data.SQLMode")
+@:enum extern abstract SQLMode(String)
+{
+	var CREATE;
+	var READ;
+	var UPDATE;
 }

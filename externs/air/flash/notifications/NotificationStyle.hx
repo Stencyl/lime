@@ -1,7 +1,9 @@
 package flash.notifications;
 
-@:fakeEnum(String) extern enum NotificationStyle {
-	ALERT;
-	BADGE;
-	SOUND;
+@:native("flash.notifications.NotificationStyle")
+@:enum extern abstract NotificationStyle(String)
+{
+	var ALERT;
+	var BADGE;
+	var SOUND;
 }

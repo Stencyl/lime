@@ -32,7 +32,7 @@ namespace lime {
 			static std::wstring* GetDeviceModel ();
 			static std::wstring* GetDeviceVendor ();
 			static std::wstring* GetDirectory (SystemDirectory type, const char* company, const char* title);
-			static value GetDisplay (int id);
+			static void* GetDisplay (bool useCFFIValue, int id);
 			#ifdef IPHONE
 			static std::wstring* GetIOSDirectory (SystemDirectory type);
 			static bool GetIOSTablet ();
@@ -353,7 +353,7 @@ typedef uint64_t  uintmax_t;
 #endif
 
 
-#ifdef ANDROID
+#if defined(ANDROID) && !defined(HXCPP_CLANG)
 
 std::size_t _mbsrtowcs(wchar_t * ws, const char **src, std::size_t wn, std::mbstate_t *st);
 

@@ -1,8 +1,10 @@
 package flash.display;
 
-@:fakeEnum(String) extern enum NativeWindowRenderMode {
-	AUTO;
-	CPU;
-	DIRECT;
-	GPU;
+@:native("flash.display.NativeWindowRenderMode")
+@:enum extern abstract NativeWindowRenderMode(String)
+{
+	var AUTO;
+	var CPU;
+	var DIRECT;
+	var GPU;
 }

@@ -1,8 +1,10 @@
 package flash.filesystem;
 
-@:fakeEnum(String) extern enum FileMode {
-	APPEND;
-	READ;
-	UPDATE;
-	WRITE;
+@:native("flash.filesystem.FileMode")
+@:enum extern abstract FileMode(String)
+{
+	var APPEND;
+	var READ;
+	var UPDATE;
+	var WRITE;
 }
