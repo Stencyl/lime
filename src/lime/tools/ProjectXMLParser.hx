@@ -762,9 +762,8 @@ class ProjectXMLParser extends HXProject
 				if (manifest != null)
 				{
 					library = targetPath;
-					manifest.rootPath = targetPath;
 
-					var asset = new Asset("", Path.combine(targetPath, "library.json"), AssetType.MANIFEST);
+					var asset = new Asset(jsonPath, Path.combine(targetPath, "library.json"), AssetType.MANIFEST);
 					asset.id = "libraries/" + library + ".json";
 					asset.library = library;
 					asset.data = manifest.serialize();
@@ -1431,20 +1430,16 @@ class ProjectXMLParser extends HXProject
 
 							if (isValid)
 							{
-								switch (childElement.name)
+								switch(childElement.name)
 								{
 									case "imageset":
 										var name = substitute(childElement.att.name);
 										var imageset = new LaunchStoryboard.ImageSet(name);
 										
 										if (childElement.has.width)
-										{
 											imageset.width = Std.parseInt(substitute(childElement.att.width));
-										}
 										if (childElement.has.height)
-										{
 											imageset.height = Std.parseInt(substitute(childElement.att.height));
-										}
 										
 										launchStoryboard.assets.push(imageset);
 								}

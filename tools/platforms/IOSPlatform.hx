@@ -25,9 +25,6 @@ import lime.tools.ImageHelper;
 import lime.tools.IOSHelper;
 import lime.tools.Keystore;
 import lime.tools.LaunchStoryboard;
-import hxp.Log;
-import hxp.NDLL;
-import hxp.Path;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -526,7 +523,7 @@ class IOSPlatform extends PlatformTarget
 						
 						var baseImageName = Path.withoutExtension(imageset.name);
 						
-						var imageScales = ["1x","2x","3x"];
+						var imageScales = ["1x", "2x", "3x"];
 						var images = [];
 						for (scale in imageScales)
 						{
@@ -539,7 +536,7 @@ class IOSPlatform extends PlatformTarget
 								if (imageset.width == 0 || imageset.height == 0)
 								{
 									var dim = ImageHelper.readPNGImageSize(Path.combine(assetsPath, filename));
-									var scaleValue = Std.parseInt(scale.charAt (0));
+									var scaleValue = Std.parseInt(scale.charAt(0));
 									imageset.width = Std.int(dim.width / scaleValue);
 									imageset.height = Std.int(dim.height / scaleValue);
 								}
@@ -567,12 +564,25 @@ class IOSPlatform extends PlatformTarget
 				
 				for (imageset in imagesets)
 				{
-					sb.templateContext.imagesets.push ({
+					sb.templateContext.imagesets.push({
 						name: imageset.name,
 						width: imageset.width,
 						height: imageset.height,
-					});	
+					});
 				}
+				
+				var deployment:String = context.DEPLOYMENT;
+				var parts = deployment.split(".");
+				var major = Std.parseInt(parts[0]);
+				var minor = parts.length >= 2 ? Std.parseInt(parts[1]) : 0;
+				var patch = parts.length >= 3 ? Std.parseInt(parts[2]) : 0;
+
+				Reflect.setField(sb.templateContext, "deploymentVersion", {
+					major: major,
+					minor: minor,
+					patch: patch,
+					code: Std.parseInt("0x" + major + minor + patch)
+				});
 				
 				System.copyFileTemplate(project.templatePaths, "ios/storyboards/" + sb.template, projectDirectory + sb.template, sb.templateContext, true, true);
 				context.IOS_LAUNCH_STORYBOARD = Path.withoutExtension(sb.template);
@@ -586,20 +596,17 @@ class IOSPlatform extends PlatformTarget
 		else
 		{
 			var splashSizes:Array<SplashSize> = [
-				{ name: "Default.png", w: 320, h: 480 }, // iPhone, portrait
-				{ name: "Default@2x.png", w: 640, h: 960 }, // iPhone Retina, portrait
-				{ name: "Default-568h@2x.png", w: 640, h: 1136 }, // iPhone 5, portrait
-				{ name: "Default-667h@2x.png", w: 750, h: 1334 }, // iPhone 6, portrait
-				{ name: "Default-736h@3x.png", w: 1242,	h: 2208 }, // iPhone 6 Plus, portrait
-				{ name: "Default-Landscape.png", w: 1024, h: 768 }, // iPad, landscape
-				{ name: "Default-Landscape@2x.png", w: 2048, h: 1536 },	// iPad Retina, landscape
-				{ name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242 }, // iPhone 6 Plus, landscape
-				{ name: "Default-Portrait.png", w: 768, h: 1024 }, // iPad, portrait
-				{ name: "Default-Portrait@2x.png", w: 1536, h: 2048 }, // iPad Retina, portrait
-				{ name: "Default-812h@3x.png", w: 1125, h: 2436 }, // iPhone X, portrait
-				{ name: "Default-Landscape-812h@3x.png", w: 2436, h: 1125 } // iPhone X, landscape
+				{name: "Default.png", w: 320, h: 480}, // iPhone, portrait {name: "Default@2x.png", w: 640, h: 960}, // iPhone Retina, portrait
+				{name: "Default-568h@2x.png", w: 640, h: 1136}, // iPhone 5, portrait {name: "Default-667h@2x.png", w: 750, h: 1334}, // iPhone 6, portrait
+				{name: "Default-736h@3x.png", w: 1242, h: 2208}, // iPhone 6 Plus, portrait {name: "Default-Landscape.png", w: 1024, h: 768}, // iPad, landscape
+				{name: "Default-Landscape@2x.png", w: 2048, h: 1536}, // iPad Retina, landscape {name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242},
+				// iPhone 6 Plus, landscape
+				{name: "Default-Portrait.png", w: 768, h: 1024}, // iPad, portrait {name: "Default-Portrait@2x.png", w: 1536, h: 2048},
+				// iPad Retina, portrait
+				{name: "Default-812h@3x.png", w: 1125, h: 2436}, // iPhone X, portrait
+				{name: "Default-Landscape-812h@3x.png", w: 2436, h: 1125} // iPhone X, landscape
 			];
-			
+
 			var splashScreenPath = Path.combine(projectDirectory, "Images.xcassets/LaunchImage.launchimage");
 			System.mkdir(splashScreenPath);
 
@@ -633,13 +640,13 @@ class IOSPlatform extends PlatformTarget
 					}
 				}
 			}
+
+			context.HAS_LAUNCH_IMAGE = true;
 		}
-
-		context.HAS_LAUNCH_IMAGE = true;
-
+		
 		System.mkdir(projectDirectory + "/resources");
 		System.mkdir(projectDirectory + "/haxe/build");
-		
+
 		// Long deprecated template path
 
 		ProjectHelper.recursiveSmartCopyTemplate(project, "iphone/resources", projectDirectory + "/resources", context, true, false);
