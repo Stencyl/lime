@@ -238,7 +238,11 @@ class ImageDataUtil
 			var srcPremultiplied = sourceImage.buffer.premultiplied;
 			var destPremultiplied = image.buffer.premultiplied;
 
-			var srcPosition, destPosition, srcPixel:RGBA, destPixel:RGBA, value = 0;
+			var srcPosition,
+				destPosition,
+				srcPixel:RGBA,
+				destPixel:RGBA,
+				value = 0;
 
 			for (y in 0...destView.height)
 			{
@@ -333,7 +337,7 @@ class ImageDataUtil
 				var destBytesPerPixel = Std.int(image.buffer.bitsPerPixel / 8);
 
 				var useAlphaImage = (alphaImage != null && alphaImage.transparent);
-				var blend = (mergeAlpha || (useAlphaImage && !image.transparent));
+				var blend = (mergeAlpha || (useAlphaImage && !image.transparent)) || (!mergeAlpha && !image.transparent && sourceImage.transparent);
 
 				if (!useAlphaImage)
 				{
@@ -416,13 +420,11 @@ class ImageDataUtil
 				}
 				else
 				{
-					if (alphaPoint == null) alphaPoint = new Vector2();
-
 					var alphaData = alphaImage.buffer.data;
 					var alphaFormat = alphaImage.buffer.format;
 					var alphaPosition, alphaPixel:RGBA;
 
-					var alphaView = new ImageDataView(alphaImage, new Rectangle(alphaPoint.x, alphaPoint.y, alphaImage.width, alphaImage.height));
+					var alphaView = new ImageDataView(alphaImage, new Rectangle(sourceView.x + (alphaPoint == null ? 0 : alphaPoint.x), sourceView.y + (alphaPoint == null ? 0 : alphaPoint.y), sourceView.width, sourceView.height));
 
 					destView.clip(Std.int(destPoint.x), Std.int(destPoint.y), alphaView.width, alphaView.height);
 
@@ -591,7 +593,12 @@ class ImageDataUtil
 			queue.push(x);
 			queue.push(y);
 
-			var curPointX, curPointY, nextPointX, nextPointY, nextPointOffset, readColor:RGBA;
+			var curPointX,
+				curPointY,
+				nextPointX,
+				nextPointY,
+				nextPointOffset,
+				readColor:RGBA;
 
 			while (queue.length > 0)
 			{
@@ -978,9 +985,18 @@ class ImageDataUtil
 
 			var data = image.data;
 			var newData = newBuffer.data;
-			var sourceIndex:Int, sourceIndexX:Int, sourceIndexY:Int, sourceIndexXY:Int, index:Int;
+			var sourceIndex:Int,
+				sourceIndexX:Int,
+				sourceIndexY:Int,
+				sourceIndexXY:Int,
+				index:Int;
 			var sourceX:Int, sourceY:Int;
-			var u:Float, v:Float, uRatio:Float, vRatio:Float, uOpposite:Float, vOpposite:Float;
+			var u:Float,
+				v:Float,
+				uRatio:Float,
+				vRatio:Float,
+				uOpposite:Float,
+				vOpposite:Float;
 
 			for (y in 0...newHeight)
 			{
@@ -1237,8 +1253,8 @@ class ImageDataUtil
 					}
 					else
 					{
-						color = bytes.get(dataPosition + 3) | (bytes.get(dataPosition + 2) << 8) | (bytes.get(dataPosition + 1) << 16) | (bytes
-							.get(dataPosition) << 24);
+						color = bytes.get(dataPosition + 3) | (bytes.get(dataPosition + 2) << 8) | (bytes.get(dataPosition +
+							1) << 16) | (bytes.get(dataPosition) << 24);
 					}
 
 					dataPosition += 4;
@@ -1320,7 +1336,13 @@ class ImageDataUtil
 			var srcPremultiplied = sourceImage.buffer.premultiplied;
 			var destPremultiplied = image.buffer.premultiplied;
 
-			var srcPosition, destPosition, srcPixel:RGBA, destPixel:RGBA, pixelMask:UInt, test:Bool, value:Int;
+			var srcPosition,
+				destPosition,
+				srcPixel:RGBA,
+				destPixel:RGBA,
+				pixelMask:UInt,
+				test:Bool,
+				value:Int;
 
 			for (y in 0...destView.height)
 			{
