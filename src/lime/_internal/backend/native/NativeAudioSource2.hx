@@ -34,7 +34,6 @@ class NativeAudioSource2 implements NativeAudioSourceImpl {
 	var format:Int = 0;
 
 	var loops:Int = 0;
-	var position:Vector4 = new Vector4();
 
 	var playing:Bool = false;
 	var dataLength:Int = 0;
@@ -347,32 +346,30 @@ class NativeAudioSource2 implements NativeAudioSourceImpl {
 		return loops = value;
 	}
 
-	public function getPosition() {
-
-		if(handle != null) {
-			var value = AL.getSource3f(handle, AL.POSITION);
-			position.x = value[0];
-			position.y = value[1];
-			position.z = value[2];
-		}
-
-		return position;
-	}
-
-	public function setPosition(value:Vector4) {
-		position.x = value.x;
-		position.y = value.y;
-		position.z = value.z;
-		position.w = value.w;
-
-		if (handle != null) {
+	public function setPan(value:Float):Float
+	{
+		if (handle != null)
+		{
 			AL.distanceModel(AL.NONE);
 			error();
-			AL.source3f(handle, AL.POSITION, position.x, position.y, position.z);
+			AL.source3f(handle, AL.POSITION, value, 0, -1 * Math.sqrt(1 - Math.pow(value, 2)));
 			error();
 		}
 
-		return position;
+		return value;
+	}
+
+	public function setPosition(value:Vector4):Vector4
+	{
+		if (handle != null)
+		{
+			AL.distanceModel(AL.INVERSE_DISTANCE_CLAMPED);
+			error();
+			AL.source3f(handle, AL.POSITION, value.x, value.y, value.z);
+			error();
+		}
+
+		return value;
 	}
 
 }

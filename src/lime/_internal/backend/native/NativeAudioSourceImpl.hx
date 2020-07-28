@@ -18,7 +18,7 @@ interface NativeAudioSourceImpl {
 	public function setLength (value:Int):Int;
 	public function getLoops ():Int;
 	public function setLoops (value:Int):Int;
-	public function getPosition ():Vector4;
+	public function setPan (value:Float):Float;
 	public function setPosition (value:Vector4):Vector4;
 	
 }

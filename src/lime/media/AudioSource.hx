@@ -21,8 +21,12 @@ class AudioSource
 	public var length(get, set):Int;
 	public var loops(get, set):Int;
 	public var offset:Int;
-	public var position(get, set):Vector4;
+	public var pan(get, set):Null<Float>;
+	public var position(get, set):Null<Vector4>;
 
+	public var _pan:Null<Float>;
+	public var _position:Null<Vector4>;
+	
 	@:noCompletion private var __backend:AudioSourceBackend;
 
 	public function new(buffer:AudioBuffer = null, offset:Int = 0, length:Null<Int> = null, loops:Int = 0)
@@ -125,14 +129,50 @@ class AudioSource
 		return __backend.setLoops(value);
 	}
 
-	@:noCompletion private function get_position():Vector4
+	@:noCompletion private function get_pan():Null<Float>
 	{
-		return __backend.getPosition();
+		return _pan;
 	}
 
-	@:noCompletion private function set_position(value:Vector4):Vector4
+	@:noCompletion private function set_pan(value:Null<Float>):Null<Float>
 	{
-		return __backend.setPosition(value);
+		if(_position != null)
+		{
+			trace("Can't set pan on a spatial sound.");
+			return _pan;
+		}
+
+		if(value == null)
+		{
+			_pan = __backend.setPan(0);
+		}
+
+		_pan = __backend.setPan(value);
+
+		return _pan;
+	}
+
+	@:noCompletion private function get_position():Null<Vector4>
+	{
+		return _position;
+	}
+
+	@:noCompletion private function set_position(value:Null<Vector4>):Null<Vector4>
+	{
+		if(_pan != null)
+		{
+			trace("Can't set position on a panned sound.");
+			return _position;
+		}
+
+		if(value == null)
+		{
+			_position = __backend.setPosition(new Vector4(0, 0, 0, 0));
+		}
+
+		_position = __backend.setPosition(value);
+
+		return _position;
 	}
 }
 

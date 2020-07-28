@@ -14,13 +14,10 @@ class FlashAudioSource
 	private var parent:AudioSource;
 	private var pauseTime:Int;
 	private var playing:Bool;
-	private var position:Vector4;
 
 	public function new(parent:AudioSource)
 	{
 		this.parent = parent;
-
-		position = new Vector4();
 	}
 
 	public function dispose():Void {}
@@ -119,24 +116,21 @@ class FlashAudioSource
 		return loops = value;
 	}
 
-	public function getPosition():Vector4
+	public function setPan(value:Float):Float
 	{
-		position.x = channel.soundTransform.pan;
+		var soundTransform = channel.soundTransform;
+		soundTransform.pan = value;
+		channel.soundTransform = soundTransform;
 
-		return position;
+		return value;
 	}
 
 	public function setPosition(value:Vector4):Vector4
 	{
-		position.x = value.x;
-		position.y = value.y;
-		position.z = value.z;
-		position.w = value.w;
-
 		var soundTransform = channel.soundTransform;
-		soundTransform.pan = position.x;
+		soundTransform.pan = value.x;
 		channel.soundTransform = soundTransform;
 
-		return position;
+		return value;
 	}
 }
