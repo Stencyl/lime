@@ -23,8 +23,8 @@
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
-	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || android" unless="static_link" />
-	<set name="LIME_OPENAL" value="1" if="mac || iphone || emscripten || tvos" />
+	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || mac || android" unless="static_link" />
+	<set name="LIME_OPENAL" value="1" if="iphone || emscripten || tvos" />
 	<set name="LIME_MOJOAL" value="1" if="switch || static_link || winrt || mojoal" unless="LIME_OPENAL" />
 	<unset name="LIME_OPENALSOFT" if="LIME_MOJOAL" />
 	<set name="LIME_OPENAL" value="1" if="LIME_OPENALSOFT" />
@@ -278,10 +278,9 @@
 
 		<section if="LIME_ZLIB">
 
-			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
+			<compilerflag value="-DSTATIC_LINK" if="emscripten || ios || tvos" />
 			<compilerflag value="-DLIME_ZLIB" />
 
-			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios || static_link || tvos" />
 			<file name="src/utils/compress/Zlib.cpp" />
 
 		</section>
@@ -503,6 +502,7 @@
 				<vflag name="-framework" value="AudioUnit" />
 				<vflag name="-framework" value="OpenAL"/>
 				<vflag name="-framework" value="GameController"/>
+				<vflag name="-framework" value="CoreBluetooth" />
 
 				<lib name="-ldl" />
 				<lib name="-lEGL" />
@@ -522,6 +522,7 @@
 				<vflag name="-framework" value="OpenAL"/>
 				<vflag name="-framework" value="CoreMotion"/>
 				<vflag name="-framework" value="CoreText"/>
+				<vflag name="-framework" value="CoreBluetooth" />
 
 				<lib name="-ldl" />
 				<lib name="-lEGL" />
