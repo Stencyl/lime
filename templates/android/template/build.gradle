@@ -41,7 +41,7 @@ configure(subprojects.findAll {!it.file('build.gradle').exists() && it.file('bui
 		}
 	}
 	
-	apply plugin: 'android-library'
+	apply plugin: 'com.android.library'
 	
 	android {
 		compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
