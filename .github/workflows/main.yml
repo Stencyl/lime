@@ -5,7 +5,7 @@ env:
 
 jobs:
 
-  android:
+  android-ndll:
     runs-on: ubuntu-16.04
     steps:
 
@@ -30,8 +30,7 @@ jobs:
           haxelib install hxcpp 4.0.64 --quiet
           haxelib install format  --quiet
           haxelib install hxp  --quiet
-          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
-
+          
       - name: Enable HXCPP compile cache
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
@@ -65,65 +64,7 @@ jobs:
         run: |
           lime rebuild android -release -verbose -nocolor
 
-      - name: Create Lime samples
-        run: |
-          lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
-          lime build HelloWorld android -release -verbose -nocolor
-          lime build SimpleImage android -release -verbose -nocolor
-          lime build SimpleAudio android -release -verbose -nocolor
-
-  flash:
-    runs-on: ubuntu-16.04
-    steps:
-
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - uses: haxeui/haxeui-core/.github/actions/haxe@master
-        with:
-          haxe-version: 4.1.5
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-
-      - name: Install Haxe dependencies
-        run: |
-          haxelib install hxcpp 4.0.64 --quiet
-          haxelib install format  --quiet
-          haxelib install hxp  --quiet
-          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
-
-      - name: Rebuild Lime tools
-        run: |
-          haxelib dev lime $GITHUB_WORKSPACE
-          haxelib run lime rebuild tools -nocolor -verbose -nocffi
-          haxelib run lime rebuild linux -64 -release -nocolor -verbose -nocffi
-
-      - name: Install "lime" command alias
-        run: |
-          haxelib run lime setup -alias -y -nocffi
-          lime || alias lime="haxelib run lime"
-
-      - name: Create Lime samples
-        run: |
-          lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
-          lime build HelloWorld flash -release -verbose -nocolor
-          lime build SimpleImage flash -release -verbose -nocolor
-          lime build SimpleAudio flash -release -verbose -nocolor
-
-  hashlink:
+  hashlink-ndll:
     strategy:
       matrix:
         os: [ubuntu-16.04, macos-10.15, windows-latest]
@@ -148,8 +89,7 @@ jobs:
           haxelib install hxcpp 4.0.64 --quiet
           haxelib install format  --quiet
           haxelib install hxp  --quiet
-          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
-
+          
       - name: Rebuild Lime tools (Windows)
         if: ${{ startsWith(matrix.os, 'windows-') }}
         run: |
@@ -177,66 +117,7 @@ jobs:
         run: |
           lime rebuild hl -release -verbose -nocolor -nocffi
 
-      #- name: Build Lime samples (HashLink)
-      #  if: ${{ !startsWith(matrix.haxe-version, '3.') }}
-      #  run: |
-      #    lime build HelloWorld hl -release -verbose -nocolor
-      #    lime build SimpleImage hl -release -verbose -nocolor
-      #    lime build SimpleAudio hl -release -verbose -nocolor
-
-  html5:
-    runs-on: ubuntu-16.04
-    steps:
-
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - uses: haxeui/haxeui-core/.github/actions/haxe@master
-        with:
-          haxe-version: 4.1.5
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-
-      - name: Install Haxe dependencies
-        run: |
-          haxelib install hxcpp 4.0.64 --quiet
-          haxelib install format  --quiet
-          haxelib install hxp  --quiet
-          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
-
-      - name: Rebuild Lime tools
-        run: |
-          haxelib dev lime $GITHUB_WORKSPACE
-          haxelib run lime rebuild tools -nocolor -verbose -nocffi
-          haxelib run lime rebuild linux -64 -release -nocolor -verbose -nocffi
-
-      - name: Install "lime" command alias
-        run: |
-          haxelib run lime setup -alias -y -nocffi
-          lime || alias lime="haxelib run lime"
-
-      - name: Create Lime samples
-        run: |
-          lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
-          lime build HelloWorld html5 -release -verbose -nocolor
-          lime build HelloWorld html5 -Dcanvas -release -verbose -nocolor
-          lime build HelloWorld html5 -Ddom -release -verbose -nocolor
-          lime build SimpleImage html5 -release -verbose -nocolor
-          lime build SimpleImage html5 -Dcanvas -release -verbose -nocolor
-          lime build SimpleImage html5 -Ddom -release -verbose -nocolor
-          lime build SimpleAudio html5 -release -verbose -nocolor
-          lime build SimpleAudio html5 -Dcanvas -release -verbose -nocolor
-          lime build SimpleAudio html5 -Ddom -release -verbose -nocolor
-
-  ios:
+  ios-ndll:
     runs-on: macos-10.15
     steps:
 
@@ -257,7 +138,6 @@ jobs:
 
           haxelib install format  --quiet
           haxelib install hxp  --quiet
-          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -278,19 +158,7 @@ jobs:
         run: |
           lime rebuild ios -release -verbose -nocolor
 
-      - name: Create Lime samples
-        run: |
-          lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
-          lime build HelloWorld ios -simulator -release -verbose -nocolor
-          lime build SimpleImage ios -simulator -release -verbose -nocolor
-          lime build SimpleAudio ios -simulator -release -verbose -nocolor
-
-  linux:
+  linux-ndll:
     runs-on: ubuntu-16.04
     steps:
 
@@ -311,7 +179,6 @@ jobs:
           haxelib install hxcpp 4.0.64 --quiet
           haxelib install format  --quiet
           haxelib install hxp  --quiet
-          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -332,19 +199,7 @@ jobs:
           lime rebuild linux -64 -release -verbose -nocolor
           lime rebuild linux -32 -release -verbose -nocolor
 
-      - name: Create Lime samples
-        run: |
-          lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
-          lime build HelloWorld linux -release -verbose -nocolor
-          lime build SimpleImage linux -release -verbose -nocolor
-          lime build SimpleAudio linux -release -verbose -nocolor
-
-  macos:
+  macos-ndll:
     runs-on: macos-10.15
     steps:
 
@@ -361,7 +216,6 @@ jobs:
           haxelib install hxcpp 4.0.64 --quiet
           haxelib install format  --quiet
           haxelib install hxp  --quiet
-          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -381,96 +235,7 @@ jobs:
         run: |
           lime rebuild macos -release -verbose -nocolor
 
-      - name: Create Lime samples
-        run: |
-          lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
-          lime build HelloWorld macos -release -verbose -nocolor
-          lime build SimpleImage macos -release -verbose -nocolor
-          lime build SimpleAudio macos -release -verbose -nocolor
-
-  neko:
-    strategy:
-      matrix:
-        os: [ubuntu-16.04, macos-10.15, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - uses: haxeui/haxeui-core/.github/actions/haxe@master
-        with:
-          haxe-version: 4.1.5
-
-      - name: Install system dependencies (Linux)
-        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-        run: |
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-
-      - name: Install Haxe dependencies
-        run: |
-          haxelib install hxcpp 4.0.64 --quiet
-          haxelib install format  --quiet
-          haxelib install hxp  --quiet
-          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
-
-      - name: Rebuild Lime tools (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        run: |
-          haxelib dev lime $Env:GITHUB_WORKSPACE
-          haxelib run lime rebuild tools -nocolor -verbose -nocffi
-
-      - name: Rebuild Lime tools (macOS/Linux)
-        if: ${{ !startsWith(matrix.os, 'windows-') }}
-        run: |
-          haxelib dev lime $GITHUB_WORKSPACE
-          haxelib run lime rebuild tools -nocolor -verbose -nocffi
-
-      - name: Install "lime" command alias (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        run: |
-          haxelib run lime setup -alias -y -nocffi
-
-      - name: Install "lime" command alias (macOS/Linux)
-        if: ${{ !startsWith(matrix.os, 'windows-') }}
-        run: |
-          haxelib run lime setup -alias -y -nocffi
-          lime || alias lime="haxelib run lime"
-
-      - name: Rebuild Lime (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        run: |
-          lime rebuild windows -64 -release -verbose -nocolor
-
-      - name: Rebuild Lime (macOS)
-        if: ${{ startsWith(matrix.os, 'macos-') }}
-        run: |
-          lime rebuild mac -release -verbose -nocolor
-
-      - name: Rebuild Lime (Linux)
-        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-        run: |
-          lime rebuild linux -64 -release -verbose -nocolor
-
-      - name: Create Lime samples
-        run: |
-          lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
-          lime build HelloWorld neko -release -verbose -nocolor
-          lime build SimpleImage neko -release -verbose -nocolor
-          lime build SimpleAudio neko -release -verbose -nocolor
-
-  windows:
+  windows-ndll:
     runs-on: windows-latest
     steps:
 
@@ -487,7 +252,6 @@ jobs:
         haxelib install hxcpp 4.0.64 --quiet
         haxelib install format  --quiet
         haxelib install hxp  --quiet
-        haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
     - name: Enable HXCPP compile cache
       run: |
@@ -506,26 +270,3 @@ jobs:
       run: |
         lime rebuild windows -32 -release -verbose -nocolor
         lime rebuild windows -64 -release -verbose -nocolor
-
-    - name: Create Lime samples
-      run: |
-        lime create HelloWorld -verbose -nocolor
-        lime create SimpleImage -verbose -nocolor
-        lime create SimpleAudio -verbose -nocolor
-
-    - name: Build Lime samples
-      run: |
-        lime build HelloWorld windows -release -verbose -nocolor
-        lime build SimpleImage windows -release -verbose -nocolor
-        lime build SimpleAudio windows -release -verbose -nocolor
-
-  notify:
-    runs-on: ubuntu-16.04
-    needs: [android, flash, hashlink, html5, ios, linux, macos, neko, windows]
-    if: always()
-    steps:
-      - name: Notify Discord
-        uses: nobrayner/discord-webhook@v1
-        with:
-          github-token: ${{ secrets.github_token }}
-          discord-webhook: ${{ secrets.DISCORD_WEBHOOK }}
