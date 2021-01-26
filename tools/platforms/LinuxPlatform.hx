@@ -137,9 +137,11 @@ class LinuxPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			// System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
-			// 	Path.combine(applicationDirectory, project.app.file + ".hl"));
-			System.recursiveCopyTemplate(project.templatePaths, "bin/hl/linux", applicationDirectory);
+			var hlPath = project.environment.get("HL_PATH");
+			for (fileToCopy in ["hl", "libhl.so"])
+			{
+				System.copyFile('$hlPath/$fileToCopy', '$applicationDirectory/$fileToCopy');
+			}
 			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
 			System.renameFile(Path.combine(applicationDirectory, "hl"), executablePath);
 		}

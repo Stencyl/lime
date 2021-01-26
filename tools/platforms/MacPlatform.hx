@@ -122,9 +122,11 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			// System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
-			// 	Path.combine(executableDirectory, project.app.file + ".hl"));
-			System.recursiveCopyTemplate(project.templatePaths, "bin/hl/mac", executableDirectory);
+			var hlPath = project.environment.get("HL_PATH");
+			for (fileToCopy in ["hl", "libhl.dylib"])
+			{
+				System.copyFile('$hlPath/$fileToCopy', '$executableDirectory/$fileToCopy');
+			}
 			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(executableDirectory, "hlboot.dat"));
 			System.renameFile(Path.combine(executableDirectory, "hl"), executablePath);
 		}
