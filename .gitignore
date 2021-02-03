@@ -24,3 +24,5 @@ package-lock.json
 node_modules
 !templates/**/node_modules
 .vscode/
+*.index
+*.snapshot

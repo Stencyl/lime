@@ -9,7 +9,7 @@ class ProjectFolderHash
 	static function main():Void
 	{
 		var projectFolderPath = "..";
-		var indexFile = "project-index";
+		var indexFile = "project.index";
 		if(FileSystem.exists(indexFile))
 			FileSystem.deleteFile(indexFile);
 
