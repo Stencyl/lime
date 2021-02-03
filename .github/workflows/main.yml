@@ -106,22 +106,17 @@ jobs:
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime rebuild linux -64 -release -nocolor -verbose -nocffi
 
-      - name: Install "lime" command alias
-        run: |
-          haxelib run lime setup -alias -y -nocffi
-          lime || alias lime="haxelib run lime"
-
       - name: Configure Android support
         run: |
-          lime config ANDROID_SDK $ANDROID_HOME
-          lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }}
-          lime config JAVA_HOME $JAVA_HOME
-          lime config ANDROID_SETUP true
-          lime config
+          haxelib run lime config ANDROID_SDK $ANDROID_HOME
+          haxelib run lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }}
+          haxelib run lime config JAVA_HOME $JAVA_HOME
+          haxelib run lime config ANDROID_SETUP true
+          haxelib run lime config
 
       - name: Rebuild Lime
         run: |
-          lime rebuild android -release -verbose -nocolor
+          haxelib run lime rebuild android -release -verbose -nocolor
 
       - name: Upload Release Assets
         env:
@@ -180,15 +175,9 @@ jobs:
         run: |
           haxelib run lime setup -alias -y -nocffi
 
-      - name: Install "lime" command alias (macOS/Linux)
-        if: ${{ !startsWith(matrix.os, 'windows-') }}
-        run: |
-          haxelib run lime setup -alias -y -nocffi
-          lime || alias lime="haxelib run lime"
-
       - name: Rebuild Lime
         run: |
-          lime rebuild hl -release -verbose -nocolor -nocffi
+          haxelib run lime rebuild hl -release -verbose -nocolor -nocffi
 
       - name: Upload Release Assets
         env:
@@ -239,14 +228,9 @@ jobs:
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime rebuild macos -release -64 -nocolor -verbose -nocffi
 
-      - name: Install "lime" command alias
-        run: |
-          haxelib run lime setup -alias -y -nocffi
-          lime || alias lime="haxelib run lime"
-
       - name: Rebuild Lime
         run: |
-          lime rebuild ios -release -verbose -nocolor
+          haxelib run lime rebuild ios -release -verbose -nocolor
 
       - name: Upload Release Assets
         env:
@@ -293,15 +277,10 @@ jobs:
           haxelib dev lime $GITHUB_WORKSPACE
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
 
-      - name: Install "lime" command alias
-        run: |
-          haxelib run lime setup -alias -y -nocffi
-          lime || alias lime="haxelib run lime"
-
       - name: Rebuild Lime
         run: |
-          lime rebuild linux -64 -release -verbose -nocolor
-          lime rebuild linux -32 -release -verbose -nocolor
+          haxelib run lime rebuild linux -64 -release -verbose -nocolor
+          haxelib run lime rebuild linux -32 -release -verbose -nocolor
 
       - name: Upload Release Assets
         env:
@@ -344,14 +323,9 @@ jobs:
           haxelib dev lime $GITHUB_WORKSPACE
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
 
-      - name: Install "lime" command alias
-        run: |
-          haxelib run lime setup -alias -y -nocffi
-          lime || alias lime="haxelib run lime"
-
       - name: Rebuild Lime
         run: |
-          lime rebuild macos -release -verbose -nocolor
+          haxelib run lime rebuild macos -release -verbose -nocolor
 
       - name: Upload Release Assets
         env:
@@ -394,14 +368,10 @@ jobs:
         haxelib dev lime $Env:GITHUB_WORKSPACE
         haxelib run lime rebuild tools -nocolor -verbose -nocffi
 
-    - name: Install "lime" command alias
-      run: |
-        haxelib run lime setup -alias -y -nocffi
-
     - name: Rebuild Lime
       run: |
-        lime rebuild windows -32 -release -verbose -nocolor
-        lime rebuild windows -64 -release -verbose -nocolor
+        haxelib run lime rebuild windows -32 -release -verbose -nocolor
+        haxelib run lime rebuild windows -64 -release -verbose -nocolor
 
     - name: Upload Release Assets
       env:
