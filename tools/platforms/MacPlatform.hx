@@ -122,9 +122,11 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			// System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
-			// 	Path.combine(executableDirectory, project.app.file + ".hl"));
-			System.recursiveCopyTemplate(project.templatePaths, "bin/hl/mac", executableDirectory);
+			var hlPath = project.environment.get("HL_PATH");
+			for (fileToCopy in ["hl", "libhl.dylib"])
+			{
+				System.copyFile('$hlPath/$fileToCopy', '$executableDirectory/$fileToCopy');
+			}
 			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(executableDirectory, "hlboot.dat"));
 			System.renameFile(Path.combine(executableDirectory, "hl"), executablePath);
 		}
@@ -227,7 +229,7 @@ class MacPlatform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
@@ -243,7 +245,7 @@ class MacPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():String
+	private function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -413,7 +415,15 @@ class MacPlatform extends PlatformTarget
 
 	public override function watch():Void
 	{
-		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var hxml = getDisplayHXML();
+		var dirs = hxml.getClassPaths(true);
+
+		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
+		dirs = dirs.filter(function(dir)
+		{
+			return (!Path.startsWith(dir, outputPath));
+		});
+
 		var command = ProjectHelper.getCurrentCommand();
 		System.watch(command, dirs);
 	}

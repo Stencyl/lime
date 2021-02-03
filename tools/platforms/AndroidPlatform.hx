@@ -211,11 +211,11 @@ class AndroidPlatform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
-	private function getDisplayHXML():String
+	private function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -497,7 +497,7 @@ class AndroidPlatform extends PlatformTarget
 			// }
 		}
 
-		for (library in context.ANDROID_LIBRARY_PROJECTS)
+		for (library in cast(context.ANDROID_LIBRARY_PROJECTS, Array<Dynamic>))
 		{
 			System.recursiveCopy(library.source, destination + "/deps/" + library.name, context, true);
 		}
@@ -520,7 +520,15 @@ class AndroidPlatform extends PlatformTarget
 
 	public override function watch():Void
 	{
-		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var hxml = getDisplayHXML();
+		var dirs = hxml.getClassPaths(true);
+
+		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
+		dirs = dirs.filter(function(dir)
+		{
+			return (!Path.startsWith(dir, outputPath));
+		});
+
 		var command = ProjectHelper.getCurrentCommand();
 		System.watch(command, dirs);
 	}

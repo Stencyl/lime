@@ -78,7 +78,7 @@ class TVOSPlatform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
@@ -149,16 +149,6 @@ class TVOSPlatform extends PlatformTarget
 		{
 			architectures = [Architecture.ARM64];
 		}
-
-		/*if (project.config.getString ("ios.device", "universal") == "universal" || project.config.getString ("ios.device") == "iphone") {
-
-			if (project.config.getFloat ("ios.deployment", 5.1) < 5) {
-
-				ArrayTools.addUnique (architectures, Architecture.ARMV6);
-
-			}
-
-		}*/
 
 		for (architecture in project.architectures)
 		{
@@ -304,7 +294,7 @@ class TVOSPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():String
+	private function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/" + project.app.file + "/haxe/Build.hxml";
 
@@ -612,7 +602,15 @@ class TVOSPlatform extends PlatformTarget
 	}*/
 	public override function watch():Void
 	{
-		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var hxml = getDisplayHXML();
+		var dirs = hxml.getClassPaths(true);
+
+		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
+		dirs = dirs.filter(function(dir)
+		{
+			return (!Path.startsWith(dir, outputPath));
+		});
+
 		var command = ProjectHelper.getCurrentCommand();
 		System.watch(command, dirs);
 	}

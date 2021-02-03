@@ -137,9 +137,11 @@ class LinuxPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			// System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
-			// 	Path.combine(applicationDirectory, project.app.file + ".hl"));
-			System.recursiveCopyTemplate(project.templatePaths, "bin/hl/linux", applicationDirectory);
+			var hlPath = project.environment.get("HL_PATH");
+			for (fileToCopy in ["hl", "libhl.so"])
+			{
+				System.copyFile('$hlPath/$fileToCopy', '$applicationDirectory/$fileToCopy');
+			}
 			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
 			System.renameFile(Path.combine(applicationDirectory, "hl"), executablePath);
 		}
@@ -242,7 +244,7 @@ class LinuxPlatform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
@@ -267,7 +269,7 @@ class LinuxPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():String
+	private function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -445,7 +447,15 @@ class LinuxPlatform extends PlatformTarget
 
 	public override function watch():Void
 	{
-		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var hxml = getDisplayHXML();
+		var dirs = hxml.getClassPaths(true);
+
+		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
+		dirs = dirs.filter(function(dir)
+		{
+			return (!Path.startsWith(dir, outputPath));
+		});
+
 		var command = ProjectHelper.getCurrentCommand();
 		System.watch(command, dirs);
 	}

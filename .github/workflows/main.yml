@@ -1,203 +1,416 @@
 name: CI
-
-on: [push]
+on: [push, pull_request]
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+  DEVELOPER_DIR: /Applications/Xcode_10.3.app/Contents/Developer
 
 jobs:
 
-  build:
+  check-ndll-releases:
+    runs-on: ubuntu-16.04
+    outputs:
+      ndll_hash: ${{ steps.get_project_hash.outputs.hash }}
+      released: ${{ steps.check_release.outputs.released }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
 
+      - uses: actions/checkout@v2
+      
+      - uses: haxeui/haxeui-core/.github/actions/haxe@master
+        with:
+          haxe-version: 4.1.5
+
+      - id: get_project_hash
+        shell: bash
+        run: |
+          haxelib git filetree-indexer https://github.com/justin-espedal/haxe-filetree-indexer.git --quiet
+          cd project/tools
+          read -ra output <<<"$(haxe project-hash.hxml --interp)"
+          [[ ${output[1]} =~ ^[0-9a-z]{40}$ ]] && echo "::set-output name=hash::${output[1]}" || exit 1
+
+      - uses: actions/github-script@v3
+        id: check_release
+        env:
+          INPUT_NDLL_HASH: ${{ steps.get_project_hash.outputs.hash }}
+        with:
+          script: |
+            const ndllHash = core.getInput('ndll_hash', { required: true });
+            core.info('NDLL Hash: ' + ndllHash);
+            await github.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: "ndll/"+ndllHash
+            }).then(data => {
+              core.setOutput('released', 'true');
+            }).catch((e) => {
+              if(e && e.status===404) {
+                core.setOutput('released', 'false');
+              } else {
+                core.setFailed('get release by tag error: ', e.message);
+              }
+            });
+
+      - name: Create Release
+        id: create_release
+        if: steps.check_release.outputs.released == 'false'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ format('ndll/{0}', steps.get_project_hash.outputs.hash) }}
+          release_name: ${{ format('ndll/{0}', steps.get_project_hash.outputs.hash) }}
+          draft: false
+          prerelease: true
+
+  android-ndll:
+    needs: check-ndll-releases
+    if: needs.check-ndll-releases.outputs.released == 'false'
+    runs-on: ubuntu-16.04
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: haxeui/haxeui-core/.github/actions/haxe@master
+        with:
+          haxe-version: 4.1.5
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.0.64 --quiet
+          haxelib install format  --quiet
+          haxelib install hxp  --quiet
+          
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Install Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r15c
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime rebuild linux -64 -release -nocolor -verbose -nocffi
+
+      - name: Install "lime" command alias
+        run: |
+          haxelib run lime setup -alias -y -nocffi
+          lime || alias lime="haxelib run lime"
+
+      - name: Configure Android support
+        run: |
+          lime config ANDROID_SDK $ANDROID_HOME
+          lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }}
+          lime config JAVA_HOME $JAVA_HOME
+          lime config ANDROID_SETUP true
+          lime config
+
+      - name: Rebuild Lime
+        run: |
+          lime rebuild android -release -verbose -nocolor
+
+      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_NDLL_HASH: ${{ needs.check-ndll-releases.outputs.ndll_hash }}
+        shell: bash
+        run: |
+          cd ndll
+          find Android -type f -name "*.so" | sed 's/\// /' | while read dir asset; do
+            zip -j $dir-$asset.zip $dir/$asset
+            hub release edit -a $dir-$asset.zip#$dir/$asset -m "" "ndll/${INPUT_NDLL_HASH}"
+          done
+
+  hashlink-ndll:
+    needs: check-ndll-releases
+    if: needs.check-ndll-releases.outputs.released == 'false'
     strategy:
       matrix:
-        haxe-version: [3.4.7, 4.0.5, 4.1.1]
-        os: [ubuntu-16.04, macos-latest, windows-latest]
-
+        os: [ubuntu-16.04, macos-10.15, windows-latest]
     runs-on: ${{ matrix.os }}
-
     steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: haxeui/haxeui-core/.github/actions/haxe@master
+        with:
+          haxe-version: 4.1.5
+
+      - name: Install system dependencies (Linux)
+        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
+        run: |
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.0.64 --quiet
+          haxelib install format  --quiet
+          haxelib install hxp  --quiet
+          
+      - name: Rebuild Lime tools (Windows)
+        if: ${{ startsWith(matrix.os, 'windows-') }}
+        run: |
+          haxelib dev lime $Env:GITHUB_WORKSPACE
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+
+      - name: Rebuild Lime tools (macOS/Linux)
+        if: ${{ !startsWith(matrix.os, 'windows-') }}
+        run: |
+          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+
+      - name: Install "lime" command alias (Windows)
+        if: ${{ startsWith(matrix.os, 'windows-') }}
+        run: |
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Install "lime" command alias (macOS/Linux)
+        if: ${{ !startsWith(matrix.os, 'windows-') }}
+        run: |
+          haxelib run lime setup -alias -y -nocffi
+          lime || alias lime="haxelib run lime"
+
+      - name: Rebuild Lime
+        run: |
+          lime rebuild hl -release -verbose -nocolor -nocffi
+
+      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_NDLL_HASH: ${{ needs.check-ndll-releases.outputs.ndll_hash }}
+        shell: bash
+        run: |
+          cd ndll
+          find * -type f -name "*.hdll" | sed 's/\// /' | while read dir asset; do
+            case "$(uname -s)" in
+              CYGWIN*|MINGW32*|MSYS*|MINGW*) powershell Compress-Archive $dir/$asset $dir-$asset.zip ;;
+              *) zip -j $dir-$asset.zip $dir/$asset ;;
+            esac
+            hub release edit -a $dir-$asset.zip#$dir/$asset -m "" "ndll/${INPUT_NDLL_HASH}"
+          done
+
+  ios-ndll:
+    needs: check-ndll-releases
+    if: needs.check-ndll-releases.outputs.released == 'false'
+    runs-on: macos-10.15
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: haxeui/haxeui-core/.github/actions/haxe@master
+        with:
+          haxe-version: 4.1.5
+
+      - name: Install Haxe dependencies
+        run: |
+          git clone https://github.com/haxefoundation/hxcpp
+          haxelib dev hxcpp hxcpp
+          cd hxcpp/tools/hxcpp
+          haxe compile.hxml
+
+          haxelib install format  --quiet
+          haxelib install hxp  --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime rebuild macos -release -64 -nocolor -verbose -nocffi
+
+      - name: Install "lime" command alias
+        run: |
+          haxelib run lime setup -alias -y -nocffi
+          lime || alias lime="haxelib run lime"
+
+      - name: Rebuild Lime
+        run: |
+          lime rebuild ios -release -verbose -nocolor
+
+      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_NDLL_HASH: ${{ needs.check-ndll-releases.outputs.ndll_hash }}
+        shell: bash
+        run: |
+          cd ndll
+          find iPhone -type f -name "*.a" | sed 's/\// /' | while read dir asset; do
+            zip -j $dir-$asset.zip $dir/$asset
+            hub release edit -a $dir-$asset.zip#$dir/$asset -m "" "ndll/${INPUT_NDLL_HASH}"
+          done
+
+  linux-ndll:
+    needs: check-ndll-releases
+    if: needs.check-ndll-releases.outputs.released == 'false'
+    runs-on: ubuntu-16.04
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: haxeui/haxeui-core/.github/actions/haxe@master
+        with:
+          haxe-version: 4.1.5
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.0.64 --quiet
+          haxelib install format  --quiet
+          haxelib install hxp  --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+
+      - name: Install "lime" command alias
+        run: |
+          haxelib run lime setup -alias -y -nocffi
+          lime || alias lime="haxelib run lime"
+
+      - name: Rebuild Lime
+        run: |
+          lime rebuild linux -64 -release -verbose -nocolor
+          lime rebuild linux -32 -release -verbose -nocolor
+
+      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_NDLL_HASH: ${{ needs.check-ndll-releases.outputs.ndll_hash }}
+        shell: bash
+        run: |
+          cd ndll
+          find Linux* -type f -name "*.ndll" | sed 's/\// /' | while read dir asset; do
+            zip -j $dir-$asset.zip $dir/$asset
+            hub release edit -a $dir-$asset.zip#$dir/$asset -m "" "ndll/${INPUT_NDLL_HASH}"
+          done
+
+  macos-ndll:
+    needs: check-ndll-releases
+    if: needs.check-ndll-releases.outputs.released == 'false'
+    runs-on: macos-10.15
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: haxeui/haxeui-core/.github/actions/haxe@master
+        with:
+          haxe-version: 4.1.5
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.0.64 --quiet
+          haxelib install format  --quiet
+          haxelib install hxp  --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+
+      - name: Install "lime" command alias
+        run: |
+          haxelib run lime setup -alias -y -nocffi
+          lime || alias lime="haxelib run lime"
+
+      - name: Rebuild Lime
+        run: |
+          lime rebuild macos -release -verbose -nocolor
+
+      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_NDLL_HASH: ${{ needs.check-ndll-releases.outputs.ndll_hash }}
+        shell: bash
+        run: |
+          cd ndll
+          find Mac* -type f -name "*.ndll" | sed 's/\// /' | while read dir asset; do
+            zip -j $dir-$asset.zip $dir/$asset
+            hub release edit -a $dir-$asset.zip#$dir/$asset -m "" "ndll/${INPUT_NDLL_HASH}"
+          done
+
+  windows-ndll:
+    needs: check-ndll-releases
+    if: needs.check-ndll-releases.outputs.released == 'false'
+    runs-on: windows-latest
+    steps:
+
     - uses: actions/checkout@v2
       with:
         submodules: true
+
     - uses: haxeui/haxeui-core/.github/actions/haxe@master
       with:
-        haxe-version: ${{ matrix.haxe-version }}
-    - uses: actions/setup-java@v1
-      with:
-        java-version: 8
+        haxe-version: 4.1.5
 
-    - name: Install Haxelib dependencies
+    - name: Install Haxe dependencies
       run: |
         haxelib install hxcpp 4.0.64 --quiet
         haxelib install format  --quiet
         haxelib install hxp  --quiet
-        haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-    - name: Set ANDROID_NDK_ROOT (Linux and macOS)
-      if: ${{ !startsWith(matrix.os, 'windows-') }}
-      run: echo "::set-env name=ANDROID_NDK_ROOT::/opt/android-ndk-r15c"
-
-    - name: Set ANDROID_NDK_ROOT (Windows)
-      if: ${{ startsWith(matrix.os, 'windows-') }}
-      run: echo "::set-env name=ANDROID_NDK_ROOT::C:\android-ndk-r15c"
-
-    - name: Install Linux dependencies
-      if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-      run: sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-
-    - name: Install Android NDK (Linux)
-      if: ${{ startsWith(matrix.os, 'ubuntu-') }}
+    - name: Enable HXCPP compile cache
       run: |
-        mkdir $ANDROID_NDK_ROOT
-        wget -O android-ndk.zip --quiet https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip
-        unzip -qq android-ndk.zip -d $ANDROID_NDK_ROOT/..
-        rm android-ndk.zip
+        echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $GITHUB_ENV
 
-    - name: Install Android NDK r15c (macOS)
-      if: ${{ startsWith(matrix.os, 'macos-') }}
-      run: |
-        mkdir $ANDROID_NDK_ROOT
-        wget -O android-ndk.zip --quiet https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip
-        unzip -qq android-ndk.zip -d $ANDROID_NDK_ROOT/..
-        rm android-ndk.zip
-
-    - name: Install Android NDK r15c (Windows)
-      if: ${{ startsWith(matrix.os, 'windows-') }}
-      run: |
-        mkdir $Env:ANDROID_NDK_ROOT
-        Invoke-WebRequest https://dl.google.com/android/repository/android-ndk-r15c-windows-x86_64.zip -OutFile android-ndk.zip
-        Expand-Archive android-ndk.zip -DestinationPath $Env:ANDROID_NDK_ROOT/..
-        rm android-ndk.zip
-
-    - name: Install "lime" command alias (Linux and macOS)
-      if: ${{ !startsWith(matrix.os, 'windows-') }}
-      run: |
-        haxelib dev lime $GITHUB_WORKSPACE
-        haxelib run lime setup -alias -y
-
-    - name: Install "lime" command alias (Windows)
-      if: ${{ startsWith(matrix.os, 'windows-') }}
+    - name: Rebuild Lime tools
       run: |
         haxelib dev lime $Env:GITHUB_WORKSPACE
-        haxelib run lime setup -alias -y
+        haxelib run lime rebuild tools -nocolor -verbose -nocffi
 
-    - name: Configure Lime for Android (Linux and macOS)
-      if: ${{ !startsWith(matrix.os, 'windows-') }}
+    - name: Install "lime" command alias
       run: |
-        lime config ANDROID_SDK $ANDROID_HOME
-        haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_ROOT
-        haxelib run lime config JAVA_HOME $JAVA_HOME
-        haxelib run lime config ANDROID_SETUP true
-        haxelib run lime config
+        haxelib run lime setup -alias -y -nocffi
 
-    - name: Configure Lime for Android (Windows)
-      if: ${{ startsWith(matrix.os, 'windows-') }}
-      run: |
-        lime config ANDROID_SDK $Env:ANDROID_HOME
-        haxelib run lime config ANDROID_NDK_ROOT $Env:ANDROID_NDK_ROOT
-        haxelib run lime config JAVA_HOME $Env:JAVA_HOME
-        haxelib run lime config ANDROID_SETUP true
-        haxelib run lime config
-
-    - name: Rebuild Lime Tools
-      run: |
-        lime rebuild tools -nocolor -verbose
-
-    - name: Rebuild Lime (HashLink)
-      run: |
-        lime rebuild hl -release -verbose -nocolor
-
-    - name: Rebuild Lime (Android)
-      run: |
-        lime rebuild android -release -verbose -nocolor
-
-    - name: Rebuild Lime (iOS)
-      if: ${{ startsWith(matrix.os, 'macos-') }}
-      run: |
-        lime rebuild ios -release -verbose -nocolor
-
-    - name: Rebuild Lime (Linux)
-      if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-      run: |
-        lime rebuild linux -64 -release -verbose -nocolor
-        lime rebuild linux -32 -release -verbose -nocolor
-
-    - name: Rebuild Lime (macOS)
-      if: ${{ startsWith(matrix.os, 'macos-') }}
-      run: |
-        lime rebuild mac -release -verbose -nocolor
-
-    - name: Rebuild Lime (Windows)
-      if: ${{ startsWith(matrix.os, 'windows-') }}
+    - name: Rebuild Lime
       run: |
         lime rebuild windows -32 -release -verbose -nocolor
         lime rebuild windows -64 -release -verbose -nocolor
 
-    - name: Create Lime Samples
+    - name: Upload Release Assets
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        INPUT_NDLL_HASH: ${{ needs.check-ndll-releases.outputs.ndll_hash }}
+      shell: bash
       run: |
-        lime create HelloWorld -verbose -nocolor
-        lime create SimpleImage -verbose -nocolor
-        lime create SimpleAudio -verbose -nocolor
-
-    - name: Build Lime Samples (html5)
-      run: |
-        lime build HelloWorld html5 -release -verbose -nocolor
-        lime build HelloWorld html5 -Dcanvas -release -verbose -nocolor
-        lime build HelloWorld html5 -Ddom -release -verbose -nocolor
-        lime build SimpleImage html5 -release -verbose -nocolor
-        lime build SimpleImage html5 -Dcanvas -release -verbose -nocolor
-        lime build SimpleImage html5 -Ddom -release -verbose -nocolor
-        lime build SimpleAudio html5 -release -verbose -nocolor
-        lime build SimpleAudio html5 -Dcanvas -release -verbose -nocolor
-        lime build SimpleAudio html5 -Ddom -release -verbose -nocolor
-
-    - name: Build Lime Samples (flash)
-      run: |
-        lime build HelloWorld flash -release -verbose -nocolor
-        lime build SimpleImage flash -release -verbose -nocolor
-        lime build SimpleAudio flash -release -verbose -nocolor
-
-    - name: Build Lime Samples (neko)
-      run: |
-        lime build HelloWorld neko -release -verbose -nocolor
-        lime build SimpleImage neko -release -verbose -nocolor
-        lime build SimpleAudio neko -release -verbose -nocolor
-
-    - name: Build Lime Samples (hl)
-      if: ${{ !startsWith(matrix.haxe-version, '3.') }}
-      run: |
-        lime build HelloWorld hl -release -verbose -nocolor
-        lime build SimpleImage hl -release -verbose -nocolor
-        lime build SimpleAudio hl -release -verbose -nocolor
-
-    - name: Build Lime Samples (android)
-      run: |
-        lime build HelloWorld android -release -verbose -nocolor
-        lime build SimpleImage android -release -verbose -nocolor
-        lime build SimpleAudio android -release -verbose -nocolor
-
-    - name: Build Lime Samples (linux)
-      if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-      run: |
-        lime build HelloWorld linux -release -verbose -nocolor
-        lime build SimpleImage linux -release -verbose -nocolor
-        lime build SimpleAudio linux -release -verbose -nocolor
-
-    - name: Build Lime Samples (mac)
-      if: ${{ startsWith(matrix.os, 'macos-') }}
-      run: |
-        lime build HelloWorld mac -release -verbose -nocolor
-        lime build SimpleImage mac -release -verbose -nocolor
-        lime build SimpleAudio mac -release -verbose -nocolor
-
-    - name: Build Lime Samples (ios)
-      if: ${{ startsWith(matrix.os, 'macos-') }}
-      run: |
-        lime build HelloWorld ios -simulator -release -verbose -nocolor
-        lime build SimpleImage ios -simulator -release -verbose -nocolor
-        lime build SimpleAudio ios -simulator -release -verbose -nocolor
-
-    - name: Build Lime Samples (windows)
-      if: ${{ startsWith(matrix.os, 'windows-') }}
-      run: |
-        lime build HelloWorld windows -release -verbose -nocolor
-        lime build SimpleImage windows -release -verbose -nocolor
-        lime build SimpleAudio windows -release -verbose -nocolor
+        cd ndll
+          find Windows* -type f -name "*.ndll" | sed 's/\// /' | while read dir asset; do
+            powershell Compress-Archive $dir/$asset $dir-$asset.zip
+            hub release edit -a $dir-$asset.zip#$dir/$asset -m "" "ndll/${INPUT_NDLL_HASH}"
+          done

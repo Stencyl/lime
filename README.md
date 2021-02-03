@@ -1,4 +1,5 @@
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE.md) [![Haxelib Version](https://img.shields.io/github/tag/openfl/lime.svg?style=flat&label=haxelib)](http://lib.haxe.org/p/lime) [![Build Status](https://img.shields.io/circleci/project/github/openfl/lime/develop.svg)](https://circleci.com/gh/openfl/lime)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE.md) [![Haxelib Version](https://img.shields.io/github/tag/openfl/lime.svg?style=flat&label=haxelib)](http://lib.haxe.org/p/lime) [![Build Status](https://img.shields.io/github/workflow/status/haxelime/lime/CI/develop)](https://circleci.com/gh/openfl/lime) [![Community](https://img.shields.io/discourse/posts?color=24afc4&server=https%3A%2F%2Fcommunity.openfl.org&label=community)](https://community.openfl.org/c/lime/19) [![Discord Server](https://img.shields.io/discord/415681294446493696.svg?color=7289da)](https://discordapp.com/invite/tDgq8EE)
+
 
 Lime
 ====
@@ -64,6 +65,7 @@ Tell haxelib where your development copy of Lime is installed:
 The first time you run the "lime" command, it will attempt to build the Lime standard binary for your desktop platform as the command-line tools. To build these manually, use the following command (using "mac" or "linux" if appropriate):
 
     haxelib install format
+    haxelib install hxp
     lime rebuild windows
 
 You can build additional binaries, or rebuild binaries after making changes, using "lime rebuild":

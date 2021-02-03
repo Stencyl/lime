@@ -3,6 +3,7 @@ package lime.tools;
 import hxp.*;
 import lime.tools.Architecture;
 import lime.tools.Asset;
+import lime.tools.ConfigHelper;
 import lime.tools.HXProject;
 import lime.tools.Platform;
 import sys.FileSystem;
@@ -46,30 +47,7 @@ class HTML5Helper
 	// }
 	public static function generateWebfonts(project:HXProject, font:Asset):Void
 	{
-		var suffix = switch (System.hostPlatform)
-		{
-			case WINDOWS: "-windows.exe";
-			case MAC: "-mac";
-			case LINUX: "-linux";
-			default: return;
-		}
-
-		if (suffix == "-linux")
-		{
-			if (System.hostArchitecture == X86)
-			{
-				suffix += "32";
-			}
-			else
-			{
-				suffix += "64";
-			}
-		}
-
-		var templatePaths = [
-			Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
-		].concat(project.templatePaths);
-		var webify = System.findTemplate(templatePaths, "bin/webify" + suffix);
+		var webify = ConfigHelper.getConfigValue("PATH_WEBIFY");
 		if (System.hostPlatform != WINDOWS)
 		{
 			Sys.command("chmod", ["+x", webify]);
@@ -166,13 +144,10 @@ class HTML5Helper
 
 			if (project.targetFlags.exists("yui"))
 			{
-				var templatePaths = [
-					Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
-				].concat(project.templatePaths);
 				System.runCommand("", "java", [
 					"-Dapple.awt.UIElement=true",
 					"-jar",
-					System.findTemplate(templatePaths, "bin/yuicompressor-2.4.7.jar"),
+					ConfigHelper.getConfigValue("PATH_YUI_COMPRESSOR"),
 					"-o",
 					tempFile,
 					sourceFile
@@ -180,13 +155,10 @@ class HTML5Helper
 			}
 			else
 			{
-				var templatePaths = [
-					Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
-				].concat(project.templatePaths);
 				var args = [
 					"-Dapple.awt.UIElement=true",
 					"-jar",
-					System.findTemplate(templatePaths, "bin/compiler.jar"),
+					ConfigHelper.getConfigValue("PATH_CLOSURE_COMPILER"),
 					"--strict_mode_input",
 					"false",
 					"--js",
