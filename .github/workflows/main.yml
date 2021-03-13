@@ -1,7 +1,6 @@
 name: CI
 on: [push, pull_request]
 env:
-  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
   DEVELOPER_DIR: /Applications/Xcode_10.3.app/Contents/Developer
 
 jobs:
@@ -16,9 +15,9 @@ jobs:
 
       - uses: actions/checkout@v2
       
-      - uses: haxeui/haxeui-core/.github/actions/haxe@master
+      - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.1.5
+          haxe-version: 4.2.1
 
       - id: get_project_hash
         shell: bash
@@ -72,9 +71,9 @@ jobs:
         with:
           submodules: true
 
-      - uses: haxeui/haxeui-core/.github/actions/haxe@master
+      - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.1.5
+          haxe-version: 4.2.1
 
       - uses: actions/setup-java@v1
         with:
@@ -86,9 +85,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp 4.0.64 --quiet
-          haxelib install format  --quiet
-          haxelib install hxp  --quiet
+          haxelib install hxcpp --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
           
       - name: Enable HXCPP compile cache
         run: |
@@ -143,9 +142,9 @@ jobs:
         with:
           submodules: true
 
-      - uses: haxeui/haxeui-core/.github/actions/haxe@master
+      - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.1.5
+          haxe-version: 4.2.1
 
       - name: Install system dependencies (Linux)
         if: ${{ startsWith(matrix.os, 'ubuntu-') }}
@@ -154,9 +153,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp 4.0.64 --quiet
-          haxelib install format  --quiet
-          haxelib install hxp  --quiet
+          haxelib install hxcpp --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
           
       - name: Rebuild Lime tools (Windows)
         if: ${{ startsWith(matrix.os, 'windows-') }}
@@ -204,19 +203,15 @@ jobs:
         with:
           submodules: true
 
-      - uses: haxeui/haxeui-core/.github/actions/haxe@master
+      - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.1.5
+          haxe-version: 4.2.1
 
       - name: Install Haxe dependencies
         run: |
-          git clone https://github.com/haxefoundation/hxcpp
-          haxelib dev hxcpp hxcpp
-          cd hxcpp/tools/hxcpp
-          haxe compile.hxml
-
-          haxelib install format  --quiet
-          haxelib install hxp  --quiet
+          haxelib install hxcpp --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -254,9 +249,9 @@ jobs:
         with:
           submodules: true
 
-      - uses: haxeui/haxeui-core/.github/actions/haxe@master
+      - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.1.5
+          haxe-version: 4.2.1
 
       - name: Install system dependencies
         run: |
@@ -264,9 +259,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp 4.0.64 --quiet
-          haxelib install format  --quiet
-          haxelib install hxp  --quiet
+          haxelib install hxcpp --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -304,15 +299,15 @@ jobs:
         with:
           submodules: true
 
-      - uses: haxeui/haxeui-core/.github/actions/haxe@master
+      - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.1.5
+          haxe-version: 4.2.1
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp 4.0.64 --quiet
-          haxelib install format  --quiet
-          haxelib install hxp  --quiet
+          haxelib install hxcpp --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -349,15 +344,15 @@ jobs:
       with:
         submodules: true
 
-    - uses: haxeui/haxeui-core/.github/actions/haxe@master
+    - uses: krdlab/setup-haxe@v1
       with:
-        haxe-version: 4.1.5
+        haxe-version: 4.2.1
 
     - name: Install Haxe dependencies
       run: |
-        haxelib install hxcpp 4.0.64 --quiet
-        haxelib install format  --quiet
-        haxelib install hxp  --quiet
+        haxelib install hxcpp --quiet
+        haxelib install format --quiet
+        haxelib install hxp --quiet
 
     - name: Enable HXCPP compile cache
       run: |
