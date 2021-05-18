@@ -19,7 +19,11 @@ import lime.utils.UInt8Array;
 class NativeAudioSource implements NativeAudioSourceImpl
 {
 	private static var STREAM_BUFFER_SIZE = 48000;
+	#if (native_audio_buffers && !macro)
+	private static var STREAM_NUM_BUFFERS = Std.parseInt(haxe.macro.Compiler.getDefine("native_audio_buffers"));
+	#else
 	private static var STREAM_NUM_BUFFERS = 3;
+	#end
 	private static var STREAM_TIMER_FREQUENCY = 100;
 
 	private var buffers:Array<ALBuffer>;
@@ -299,6 +303,14 @@ class NativeAudioSource implements NativeAudioSourceImpl
 			}
 
 			AL.sourceQueueBuffers(handle, numBuffers, buffers);
+
+			// OpenAL can unexpectedly stop playback if the buffers fill up,
+			// which typically happens if an operation (such as resizing a
+			// window) freezes the main thread.
+			// If AL is supposed to be playing but isn't, restart it here.
+			if (playing && handle != null && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED){
+				AL.sourcePlay(handle);
+			}
 		}
 		#end
 	}
@@ -308,6 +320,7 @@ class NativeAudioSource implements NativeAudioSourceImpl
 		if (playing && handle != null && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING)
 		{
 			AL.sourceStop(handle);
+			setCurrentTime(0);
 		}
 
 		playing = false;
