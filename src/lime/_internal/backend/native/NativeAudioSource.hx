@@ -304,9 +304,9 @@ class NativeAudioSource implements NativeAudioSourceImpl
 
 			AL.sourceQueueBuffers(handle, numBuffers, buffers);
 
-			// OpenAL can unexpectedly stop playback if the buffers fill up,
-			// which typically happens if an operation (such as resizing a
-			// window) freezes the main thread.
+			// OpenAL can unexpectedly stop playback if the buffers run out
+			// of data, which typically happens if an operation (such as
+			// resizing a window) freezes the main thread.
 			// If AL is supposed to be playing but isn't, restart it here.
 			if (playing && handle != null && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED){
 				AL.sourcePlay(handle);
@@ -320,7 +320,6 @@ class NativeAudioSource implements NativeAudioSourceImpl
 		if (playing && handle != null && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING)
 		{
 			AL.sourceStop(handle);
-			setCurrentTime(0);
 		}
 
 		playing = false;
@@ -334,6 +333,8 @@ class NativeAudioSource implements NativeAudioSourceImpl
 		{
 			timer.stop();
 		}
+		
+		setCurrentTime(0);
 	}
 
 	// Event Handlers
