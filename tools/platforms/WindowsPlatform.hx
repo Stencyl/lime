@@ -53,7 +53,6 @@ class WindowsPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl"))
 		{
 			targetType = "hl";
-			is64 = false;
 		}
 		else if (project.targetFlags.exists("cppia"))
 		{
@@ -85,7 +84,7 @@ class WindowsPlatform extends PlatformTarget
 		{
 			if (architecture == Architecture.X64)
 			{
-				if ((targetType == "cpp" || targetType == "winrt"))
+				if ((targetType == "cpp" || targetType == "winrt" || targetType == "hl"))
 				{
 					is64 = true;
 				}
@@ -553,7 +552,7 @@ class WindowsPlatform extends PlatformTarget
 			var commands = [];
 
 			if (!targetFlags.exists("64")
-				&& (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt")))
+				&& (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt" && targetType != "hl")))
 			{
 				if (targetType == "winrt")
 				{
@@ -576,12 +575,16 @@ class WindowsPlatform extends PlatformTarget
 
 			if (!targetFlags.exists("32")
 				&& System.hostArchitecture == X64
-				&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt")
-				&& targetType != "hl")
+				&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt" || targetType == "hl"))
 			{
 				if (targetType == "winrt")
 				{
 					commands.push(["-Dwinrt", "-DHXCPP_M64"]);
+				}
+				else if (targetType == "hl")
+				{
+					// TODO: Support single binary
+					commands.push(["-Dwindows", "-DHXCPP_M64", "-Dhashlink"]);
 				}
 				else
 				{
