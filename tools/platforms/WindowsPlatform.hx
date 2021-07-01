@@ -10,6 +10,7 @@ import lime.tools.Architecture;
 import lime.tools.Asset;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
+import lime.tools.ConfigHelper;
 import lime.tools.CPPHelper;
 import lime.tools.CSHelper;
 import lime.tools.DeploymentHelper;
@@ -205,16 +206,7 @@ class WindowsPlatform extends PlatformTarget
 						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project.debug,
 							targetSuffix);
 
-						if (!project.environment.exists("HL_PATH"))
-						{
-							var command = #if lime "lime" #else "hxp" #end;
-
-							Log.warn("You must define HL_PATH to copy HashLink dependencies, please run '" + command + " setup hl' first");
-						}
-						else
-						{
-							System.copyFile(project.environment.get("HL_PATH") + '/ssl.hdll', applicationDirectory + '/ssl.hdll');
-						}
+						System.copyFile(ConfigHelper.getConfigValue("PATH_HASHLINK") + '/lib/ssl.hdll', applicationDirectory + '/ssl.hdll');
 					}
 					else
 					{
@@ -249,10 +241,11 @@ class WindowsPlatform extends PlatformTarget
 
 				if (noOutput) return;
 
-				var hlPath = project.environment.get("HL_PATH");
-				for (fileToCopy in ["hl.exe", "hl.lib", "libhl.dll", "libhl.lib", "msvcr120.dll"])
+				var hlPath = ConfigHelper.getConfigValue("PATH_HASHLINK");
+				for (fileToCopy in ["bin/hl.exe", "bin/libhl.dll", "lib/libhl.lib"])
 				{
-					System.copyFile('$hlPath/$fileToCopy', '$applicationDirectory/$fileToCopy');
+					var filename = Path.withoutDirectory(fileToCopy);
+					System.copyFile('$hlPath/$fileToCopy', '$applicationDirectory/$filename');
 				}
 				System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
 				System.renameFile(Path.combine(applicationDirectory, "hl.exe"), executablePath);

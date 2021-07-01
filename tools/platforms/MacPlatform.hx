@@ -9,6 +9,7 @@ import hxp.System;
 import lime.tools.Architecture;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
+import lime.tools.ConfigHelper;
 import lime.tools.CPPHelper;
 import lime.tools.CSHelper;
 import lime.tools.DeploymentHelper;
@@ -122,10 +123,11 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			var hlPath = project.environment.get("HL_PATH");
-			for (fileToCopy in ["hl", "libhl.dylib"])
+			var hlPath = ConfigHelper.getConfigValue("PATH_HASHLINK");
+			for (fileToCopy in ["bin/hl", "lib/libhl.dylib"])
 			{
-				System.copyFile('$hlPath/$fileToCopy', '$executableDirectory/$fileToCopy');
+				var filename = Path.withoutDirectory(fileToCopy);
+				System.copyFile('$hlPath/$fileToCopy', '$executableDirectory/$filename');
 			}
 			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(executableDirectory, "hlboot.dat"));
 			System.renameFile(Path.combine(executableDirectory, "hl"), executablePath);

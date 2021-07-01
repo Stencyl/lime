@@ -9,6 +9,7 @@ import hxp.System;
 import lime.tools.Architecture;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
+import lime.tools.ConfigHelper;
 import lime.tools.CPPHelper;
 import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
@@ -137,10 +138,11 @@ class LinuxPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			var hlPath = project.environment.get("HL_PATH");
-			for (fileToCopy in ["hl", "libhl.so"])
+			var hlPath = ConfigHelper.getConfigValue("PATH_HASHLINK");
+			for (fileToCopy in ["bin/hl", "lib/libhl.so"])
 			{
-				System.copyFile('$hlPath/$fileToCopy', '$applicationDirectory/$fileToCopy');
+				var filename = Path.withoutDirectory(fileToCopy);
+				System.copyFile('$hlPath/$fileToCopy', '$applicationDirectory/$filename');
 			}
 			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
 			System.renameFile(Path.combine(applicationDirectory, "hl"), executablePath);
