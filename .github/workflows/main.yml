@@ -81,6 +81,7 @@ jobs:
 
       - name: Install system dependencies
         run: |
+          sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
 
       - name: Install Haxe dependencies
@@ -149,6 +150,7 @@ jobs:
       - name: Install system dependencies (Linux)
         if: ${{ startsWith(matrix.os, 'ubuntu-') }}
         run: |
+          sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
 
       - name: Install Haxe dependencies
@@ -169,14 +171,36 @@ jobs:
           haxelib dev lime $GITHUB_WORKSPACE
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
 
-      - name: Install "lime" command alias (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        run: |
-          haxelib run lime setup -alias -y -nocffi
-
       - name: Rebuild Lime
+        shell: bash
         run: |
-          haxelib run lime rebuild hl -release -verbose -nocolor -nocffi
+          hl_semver="1.12.0"
+          hl_version="e31db78d8e0a07e2be6816fbd8f63ad28afc8ff1"
+          hl_url_base="http://static.stencyl.com/downloads/runtimes/HaxeFoundation/hashlink"
+          case "$(uname -s)" in
+            CYGWIN*|MINGW32*|MSYS*|MINGW*) hl_platforms=("win32" "win64"); hl_extension="zip" ;;
+            Darwin) hl_platforms=("Darwin"); hl_extension="tar.gz" ;;
+            *) hl_platforms=("Linux"); hl_extension="tar.gz" ;;
+          esac
+          for hl_platform in ${hl_platforms[@]}; do
+            hl_artifact="hashlink-$hl_semver-$hl_platform.$hl_extension"
+            if [[ $hl_platform == win* ]]; then
+              hl_arch="${hl_platform#win}"
+            else
+              hl_arch="64"
+            fi
+            curl "$hl_url_base/$hl_version/$hl_artifact" -o "$hl_artifact"
+            case "$hl_extension" in
+              zip)
+                unzip "$hl_artifact" -d "hashlink-$hl_platform"
+                hl_path="$(pwd)/hashlink-$hl_platform/hashlink-$hl_semver-$hl_platform" ;;
+              tar.gz)
+                mkdir "hashlink-$hl_platform" && tar -xzf "$hl_artifact" -C "hashlink-$hl_platform"
+                hl_path="$(pwd)/hashlink-$hl_platform/hashlink-$hl_semver-$hl_platform" ;;
+            esac
+            haxelib run lime config HASHLINK_PATH "$hl_path" -nocolor -nocffi
+            haxelib run lime rebuild hl "-$hl_arch" -release -verbose -nocolor -nocffi
+          done
 
       - name: Upload Release Assets
         env:
@@ -255,6 +279,7 @@ jobs:
 
       - name: Install system dependencies
         run: |
+          sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
 
       - name: Install Haxe dependencies
