@@ -131,6 +131,7 @@ class MacPlatform extends PlatformTarget
 			}
 			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(executableDirectory, "hlboot.dat"));
 			System.renameFile(Path.combine(executableDirectory, "hl"), executablePath);
+			System.runCommand(executableDirectory, "install_name_tool", ["-change", "@rpath/libhl.1.dylib", "@executable_path/libhl.dylib", project.app.file]);
 		}
 		else if (targetType == "java")
 		{
