@@ -116,7 +116,7 @@ class RunScript
 			}
 		}
 
-		var result:Dynamic = Sys.command(command, args);
+		var result:Dynamic = System.createProcess(command, args);
 
 		if (oldPath != "")
 		{

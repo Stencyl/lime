@@ -1470,7 +1470,7 @@ class CommandLineTools
 						args.push("-nolocalrepocheck");
 						args.push(workingDirectory);
 
-						Sys.exit(Sys.command("neko", args));
+						Sys.exit(System.createProcess("neko", args));
 						return null;
 					}
 
@@ -1740,7 +1740,7 @@ class CommandLineTools
 			args.push("-norerun");
 			args.push(workingDirectory);
 
-			Sys.exit(Sys.command("neko", args));
+			Sys.exit(System.createProcess("neko", args));
 			return null;
 		}
 
@@ -1807,11 +1807,11 @@ class CommandLineTools
 					var args = [Path.combine(path, "run.n")].concat(args);
 					args.push(workingDirectory);
 
-					Sys.exit(Sys.command("neko", args));
+					Sys.exit(System.createProcess("neko", args));
 					return null;
 
 					// var args = [ "run", "lime:" + haxelib.version ].concat (args);
-					// Sys.exit (Sys.command ("haxelib", args));
+					// Sys.exit (System.createProcess ("haxelib", args));
 				}
 				else
 				{

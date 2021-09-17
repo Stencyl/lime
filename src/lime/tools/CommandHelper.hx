@@ -10,7 +10,7 @@ class CommandHelper
 	{
 		for (c in commands)
 		{
-			Sys.command(c.command, c.args);
+			System.createProcess(c.command, c.args);
 		}
 	}
 

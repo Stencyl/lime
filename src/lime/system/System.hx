@@ -22,6 +22,7 @@ import js.html.Element;
 import js.Browser;
 #end
 #if sys
+import haxe.io.Eof;
 import sys.io.Process;
 #end
 
@@ -73,6 +74,46 @@ class System
 	@:noCompletion private static var __platformName:String;
 	@:noCompletion private static var __platformVersion:String;
 	@:noCompletion private static var __userDirectory:String;
+
+	public static function createProcess(command:String, args:Array<String> = null)
+	{
+		#if sys
+		if (args == null) args = [];
+
+		var process = new Process(command, args);
+		
+		var waiting = true;
+
+		while (waiting)
+		{
+			try
+			{
+				Sys.println(process.stdout.readLine());
+			}
+			catch (e:Eof)
+			{
+				waiting = false;
+			}
+		}
+
+		var error = process.stderr.readAll().toString();
+		var result = process.exitCode();
+		
+		if (error != "")
+		{
+			Sys.println(error);
+		}
+		
+		process.close();
+		
+		return result;
+
+		#else
+
+		return 0;
+
+		#end
+	}
 
 	#if (js && html5)
 	@:keep @:expose("lime.embed")
@@ -294,11 +335,11 @@ class System
 		if (path != null)
 		{
 			#if (sys && windows)
-			Sys.command("start", ["", path]);
+			createProcess("start", ["", path]);
 			#elseif mac
-			Sys.command("/usr/bin/open", [path]);
+			createProcess("/usr/bin/open", [path]);
 			#elseif linux
-			Sys.command("/usr/bin/xdg-open", [path, "&"]);
+			createProcess("/usr/bin/xdg-open", [path, "&"]);
 			#elseif (js && html5)
 			Browser.window.open(path, "_blank");
 			#elseif flash
