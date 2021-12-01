@@ -310,6 +310,9 @@ class AndroidPlatform extends PlatformTarget
 
 	public override function update():Void
 	{
+		var destination = targetDirectory + "/bin";
+		System.markAllFilesInFolderAsUntouched(destination, ["app/build", "app/src/main/jniLibs"]);
+
 		AssetHelper.processLibraries(project, targetDirectory);
 
 		// project = project.clone ();
@@ -327,7 +330,6 @@ class AndroidPlatform extends PlatformTarget
 
 		// initialize (project);
 
-		var destination = targetDirectory + "/bin";
 		var sourceSet = destination + "/app/src/main";
 		System.mkdir(sourceSet);
 		System.mkdir(sourceSet + "/res/drawable-ldpi/");
@@ -516,6 +518,8 @@ class AndroidPlatform extends PlatformTarget
 				AssetHelper.copyAsset(asset, targetPath, context);
 			}
 		}
+
+		System.deleteUntouchedFiles();
 	}
 
 	public override function watch():Void
