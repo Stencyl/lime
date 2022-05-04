@@ -146,8 +146,16 @@ class IOSHelper
 			commands.push("arm64");
 		}
 
-		commands.push("-project");
-		commands.push(project.app.file + ".xcodeproj");
+		if (project.config.exists("ios.cocoapod"))
+		{
+			commands.push("-workspace");
+			commands.push(project.app.file + ".xcworkspace");
+		}
+		else
+		{
+			commands.push("-project");
+			commands.push(project.app.file + ".xcodeproj");
+		}
 		commands.push("-scheme");
 		commands.push(project.app.file);
 		

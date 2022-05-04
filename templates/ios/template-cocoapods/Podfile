@@ -1,0 +1,7 @@
+project '::APP_FILE::.xcodeproj'
+
+platform :ios, '::DEPLOYMENT::.0'
+
+target '::APP_FILE::' do
+  ::COCOAPODS_PODS::
+end
