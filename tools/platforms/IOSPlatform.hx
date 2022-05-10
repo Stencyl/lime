@@ -666,9 +666,11 @@ class IOSPlatform extends PlatformTarget
 		if (hasCocoapods)
 		{
 			context.HAS_COCOAPODS = true;
+			var podNames = project.config.getArrayString("ios.cocoapod.name");
+			var podVersions = project.config.getArrayString("ios.cocoapod.version");
 			context.COCOAPODS_PODS = [
-				for (cocoapod in project.config.getArray("ios.cocoapod"))
-				'pod \'${cocoapod.name}\', \'${cocoapod.version}\''
+				for (i in 0...podNames.length)
+				'pod \'${podNames[i]}\', \'${podVersions[i]}\''
 			].join("\n  ");
 		}
 		
