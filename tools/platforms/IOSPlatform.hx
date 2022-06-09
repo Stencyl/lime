@@ -661,6 +661,19 @@ class IOSPlatform extends PlatformTarget
 		System.mkdir(projectDirectory + "/resources");
 		System.mkdir(projectDirectory + "/haxe/build");
 
+		var hasCocoapods = project.config.exists("ios.cocoapod");
+
+		if (hasCocoapods)
+		{
+			context.HAS_COCOAPODS = true;
+			var podNames = project.config.getArrayString("ios.cocoapod.name");
+			var podVersions = project.config.getArrayString("ios.cocoapod.version");
+			context.COCOAPODS_PODS = [
+				for (i in 0...podNames.length)
+				'pod \'${podNames[i]}\', \'${podVersions[i]}\''
+			].join("\n  ");
+		}
+		
 		// Long deprecated template path
 
 		ProjectHelper.recursiveSmartCopyTemplate(project, "iphone/resources", projectDirectory + "/resources", context, true, false);
@@ -668,6 +681,11 @@ class IOSPlatform extends PlatformTarget
 		// New template path
 
 		ProjectHelper.recursiveSmartCopyTemplate(project, "ios/template", targetDirectory, context);
+
+		if (hasCocoapods)
+		{
+			ProjectHelper.recursiveSmartCopyTemplate(project, "ios/template-cocoapods", targetDirectory, context);
+		}
 
 		// Recently deprecated template paths
 
@@ -791,6 +809,13 @@ class IOSPlatform extends PlatformTarget
 				System.mkdir(Path.directory(targetPath));
 				AssetHelper.copyAsset(asset, targetPath, context);
 			}
+		}
+
+		if (hasCocoapods)
+		{
+			//we assume cocoapods is installed for now
+
+			System.runCommand(targetDirectory, "pod", ["install"]);
 		}
 
 		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC && command == "update")
