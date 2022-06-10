@@ -306,9 +306,9 @@ class AssetHelper
 		{
 			if (output.tell() == 0)
 			{
-				//write some dummy text at the start of the packed asset file just to prevent
-				//the file from beginning with a packed file header.
-				output.writeString("asset-pack");
+				// write some dummy text at the start of the packed asset file just to prevent
+				// the file from beginning with a packed file header.
+				output.writeString("lime-asset-pack");
 			}
 
 			var assetData:Dynamic =
