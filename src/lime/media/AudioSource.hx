@@ -17,6 +17,7 @@ class AudioSource
 	public var gain(get, set):Float;
 	public var length(get, set):Int;
 	public var loops(get, set):Int;
+	public var pitch(get, set):Float;
 	public var offset:Int;
 	public var pan(get, set):Null<Float>;
 	public var position(get, set):Null<Vector4>;
@@ -133,6 +134,16 @@ class AudioSource
 		_pan = __backend.setPan(value);
 
 		return _pan;
+	}
+
+	@:noCompletion private function get_pitch():Float
+	{
+		return __backend.getPitch();
+	}
+
+	@:noCompletion private function set_pitch(value:Float):Float
+	{
+		return __backend.setPitch(value);
 	}
 
 	@:noCompletion private function get_position():Null<Vector4>

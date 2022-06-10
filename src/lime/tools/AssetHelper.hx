@@ -436,7 +436,7 @@ class AssetHelper
 			}
 		}
 
-		if (!libraryMap.exists(DEFAULT_LIBRARY_NAME))
+		if (project.assets.length > 0 && !libraryMap.exists(DEFAULT_LIBRARY_NAME))
 		{
 			library = new Library(null, DEFAULT_LIBRARY_NAME);
 			project.libraries.push(library);
@@ -549,6 +549,11 @@ class AssetHelper
 		if (hasPackedLibraries)
 		{
 			processPackedLibraries(project, targetDirectory);
+		}
+
+		if (project.assets.length == 0)
+		{
+			project.haxedefs.set("disable_preloader_assets", "1");
 		}
 
 		var manifest, embed, asset;

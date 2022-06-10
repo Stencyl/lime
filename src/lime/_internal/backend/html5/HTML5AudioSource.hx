@@ -212,6 +212,25 @@ class HTML5AudioSource
 		return value;
 	}
 
+	public function getPitch():Float
+	{
+		#if lime_howlerjs
+		return parent.buffer.__srcHowl.rate();
+		#else
+		return 1;
+		#end
+	}
+
+	public function setPitch(value:Float):Float
+	{
+		#if lime_howlerjs
+		parent.buffer.__srcHowl.rate(value);
+		#end
+		
+		return getPitch();
+	}
+	
+
 	public function setPosition(value:Vector4):Vector4
 	{
 		#if lime_howlerjs
