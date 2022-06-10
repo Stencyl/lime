@@ -175,12 +175,12 @@ jobs:
         shell: bash
         run: |
           hl_semver="1.12.0"
-          hl_version="e31db78d8e0a07e2be6816fbd8f63ad28afc8ff1"
+          hl_version="68daa125ad115a1f1d1db65d38e6045858d55013"
           hl_url_base="http://static.stencyl.com/downloads/runtimes/HaxeFoundation/hashlink"
           case "$(uname -s)" in
             CYGWIN*|MINGW32*|MSYS*|MINGW*) hl_platforms=("win32" "win64"); hl_extension="zip" ;;
-            Darwin) hl_platforms=("Darwin"); hl_extension="tar.gz" ;;
-            *) hl_platforms=("Linux"); hl_extension="tar.gz" ;;
+            Darwin) hl_platforms=("darwin"); hl_extension="tar.gz" ;;
+            *) hl_platforms=("linux-amd64"); hl_extension="tar.gz" ;;
           esac
           for hl_platform in ${hl_platforms[@]}; do
             hl_artifact="hashlink-$hl_semver-$hl_platform.$hl_extension"
