@@ -86,8 +86,6 @@ class HTML5AudioSource
 		}
 		#end
 	}
-	
-	public function update():Void {}
 
 	// Event Handlers
 	private function howl_onEnd()

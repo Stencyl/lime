@@ -48,8 +48,6 @@ class FlashAudioSource
 			channel.stop();
 		}
 	}
-	
-	public function update():Void {}
 
 	// Get & Set Methods
 	public function getCurrentTime():Int

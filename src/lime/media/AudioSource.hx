@@ -11,10 +11,7 @@ import lime.math.Vector4;
 #end
 class AudioSource
 {
-	static var ID = 0;
-
-	public var onComplete = new Event<Void->Void> ();
-	public var id:Int = ID++;
+	public var onComplete = new Event<Void->Void>();
 	public var buffer:AudioBuffer;
 	public var currentTime(get, set):Int;
 	public var gain(get, set):Float;
@@ -34,15 +31,8 @@ class AudioSource
 		this.buffer = buffer;
 		this.offset = offset;
 
-		#if (flash || (js && html5))
 		__backend = new AudioSourceBackend(this);
-		#else
-		@:privateAccess if (buffer.__srcVorbisFile == null)
-			__backend = new lime._internal.backend.native.NativeAudioSource(this);
-		else
-			__backend = new lime._internal.backend.native.NativeAudioSource2(this);
-		#end
-
+		
 		if (length != null && length != 0)
 		{
 			this.length = length;
@@ -59,13 +49,11 @@ class AudioSource
 	public function dispose():Void
 	{
 		__backend.dispose();
-		AudioManager.removeAudioSource(this);
 	}
 
 	@:noCompletion private function init():Void
 	{
 		__backend.init();
-		AudioManager.addAudioSource(this);
 	}
 
 	public function play():Void
@@ -81,11 +69,6 @@ class AudioSource
 	public function stop():Void
 	{
 		__backend.stop();
-	}
-	
-	public function update()
-	{
-		__backend.update();
 	}
 
 	// Get & Set Methods
@@ -181,5 +164,5 @@ class AudioSource
 #elseif (js && html5)
 @:noCompletion private typedef AudioSourceBackend = lime._internal.backend.html5.HTML5AudioSource;
 #else
-@:noCompletion private typedef AudioSourceBackend = lime._internal.backend.native.NativeAudioSourceImpl;
+@:noCompletion private typedef AudioSourceBackend = lime._internal.backend.native.NativeAudioSource;
 #end

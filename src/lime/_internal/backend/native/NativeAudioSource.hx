@@ -16,7 +16,7 @@ import lime.utils.UInt8Array;
 @:noDebug
 #end
 @:access(lime.media.AudioBuffer)
-class NativeAudioSource implements NativeAudioSourceImpl
+class NativeAudioSource
 {
 	private static var STREAM_BUFFER_SIZE = 48000;
 	#if (native_audio_buffers && !macro)
@@ -132,11 +132,6 @@ class NativeAudioSource implements NativeAudioSourceImpl
 
 		samples = Std.int((dataLength * 8) / (parent.buffer.channels * parent.buffer.bitsPerSample));
 	}
-	
-	
-	public function update ():Void {
-	
-	}
 
 	public function play():Void
 	{
@@ -177,15 +172,7 @@ class NativeAudioSource implements NativeAudioSourceImpl
 
 		if (stream)
 		{
-			if (streamTimer != null)
-			{
-				streamTimer.stop();
-			}
-
-			// not sure if this is correct. completed seems to always be false (???) although it gets set to true when the timer stops
-			//var time = completed ? 0 : getCurrentTime();
-			var time = 0;
-			setCurrentTime(time);
+			setCurrentTime(getCurrentTime());
 
 			streamTimer = new Timer(STREAM_TIMER_FREQUENCY);
 			streamTimer.run = streamTimer_onRun;
