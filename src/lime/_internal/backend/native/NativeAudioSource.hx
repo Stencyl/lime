@@ -27,6 +27,7 @@ class NativeAudioSource
 	private static var STREAM_TIMER_FREQUENCY = 100;
 
 	private var buffers:Array<ALBuffer>;
+	private var bufferTimeBlocks:Array<Float>;
 	private var completed:Bool;
 	private var dataLength:Int;
 	private var format:Int;
@@ -100,10 +101,12 @@ class NativeAudioSource
 			dataLength = Std.int(Int64.toInt(vorbisFile.pcmTotal()) * parent.buffer.channels * (parent.buffer.bitsPerSample / 8));
 
 			buffers = new Array();
+			bufferTimeBlocks = new Array();
 
 			for (i in 0...STREAM_NUM_BUFFERS)
 			{
 				buffers.push(AL.createBuffer());
+				bufferTimeBlocks.push(0);
 			}
 
 			handle = AL.createSource();
@@ -210,6 +213,12 @@ class NativeAudioSource
 		#if lime_vorbis
 		var buffer = new UInt8Array(length);
 		var read = 0, total = 0, readMax;
+
+		for (i in 0...STREAM_NUM_BUFFERS-1)
+		{
+			bufferTimeBlocks[i] = bufferTimeBlocks[i + 1];
+		}
+		bufferTimeBlocks[STREAM_NUM_BUFFERS-1] = vorbisFile.timeTell();
 
 		while (total < length)
 		{
@@ -361,7 +370,7 @@ class NativeAudioSource
 		{
 			if (stream)
 			{
-				var time = (Std.int(parent.buffer.__srcVorbisFile.timeTell() * 1000) + Std.int(AL.getSourcef(handle, AL.SEC_OFFSET) * 1000)) - parent.offset;
+				var time = (Std.int(bufferTimeBlocks[0] * 1000) + Std.int(AL.getSourcef(handle, AL.SEC_OFFSET) * 1000)) - parent.offset;
 				if (time < 0) return 0;
 				return time;
 			}
