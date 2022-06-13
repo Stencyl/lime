@@ -27,7 +27,7 @@ class HashlinkHelper
 			bindir += "64";
 		}
 
-		var hlPath = ConfigHelper.getConfigValue("HL_PATH");
+		var hlPath = ConfigHelper.getConfigValue("PATH_HASHLINK");
 		if (hlPath == null)
 		{
 			System.recursiveCopyTemplate(project.templatePaths, 'bin/hl/$bindir', applicationDirectory);
