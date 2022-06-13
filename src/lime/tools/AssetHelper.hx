@@ -306,9 +306,9 @@ class AssetHelper
 		{
 			if (output.tell() == 0)
 			{
-				//write some dummy text at the start of the packed asset file just to prevent
-				//the file from beginning with a packed file header.
-				output.writeString("asset-pack");
+				// write some dummy text at the start of the packed asset file just to prevent
+				// the file from beginning with a packed file header.
+				output.writeString("lime-asset-pack");
 			}
 
 			var assetData:Dynamic =
@@ -436,7 +436,7 @@ class AssetHelper
 			}
 		}
 
-		if (!libraryMap.exists(DEFAULT_LIBRARY_NAME))
+		if (project.assets.length > 0 && !libraryMap.exists(DEFAULT_LIBRARY_NAME))
 		{
 			library = new Library(null, DEFAULT_LIBRARY_NAME);
 			project.libraries.push(library);
@@ -549,6 +549,11 @@ class AssetHelper
 		if (hasPackedLibraries)
 		{
 			processPackedLibraries(project, targetDirectory);
+		}
+
+		if (project.assets.length == 0)
+		{
+			project.haxedefs.set("disable_preloader_assets", "1");
 		}
 
 		var manifest, embed, asset;

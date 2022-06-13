@@ -1,5 +1,6 @@
 package;
 
+import lime.tools.HashlinkHelper;
 import hxp.Haxelib;
 import hxp.HXML;
 import hxp.Path;
@@ -9,13 +10,13 @@ import hxp.System;
 import lime.tools.Architecture;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
-import lime.tools.ConfigHelper;
 import lime.tools.CPPHelper;
 import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
 import lime.tools.JavaHelper;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
+import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -34,6 +35,88 @@ class LinuxPlatform extends PlatformTarget
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
 	{
 		super(command, _project, targetFlags);
+
+		var defaults = new HXProject();
+
+		defaults.meta =
+			{
+				title: "MyApplication",
+				description: "",
+				packageName: "com.example.myapp",
+				version: "1.0.0",
+				company: "",
+				companyUrl: "",
+				buildNumber: null,
+				companyId: ""
+			};
+
+		defaults.app =
+			{
+				main: "Main",
+				file: "MyApplication",
+				path: "bin",
+				preloader: "",
+				swfVersion: 17,
+				url: "",
+				init: null
+			};
+
+		defaults.window =
+			{
+				width: 800,
+				height: 600,
+				parameters: "{}",
+				background: 0xFFFFFF,
+				fps: 30,
+				hardware: true,
+				display: 0,
+				resizable: true,
+				borderless: false,
+				orientation: Orientation.AUTO,
+				vsync: false,
+				fullscreen: false,
+				allowHighDPI: true,
+				alwaysOnTop: false,
+				antialiasing: 0,
+				allowShaders: true,
+				requireShaders: false,
+				depthBuffer: true,
+				stencilBuffer: true,
+				colorDepth: 32,
+				maximized: false,
+				minimized: false,
+				hidden: false,
+				title: ""
+			};
+
+		switch (System.hostArchitecture)
+		{
+			case ARMV6:
+				defaults.architectures = [ARMV6];
+			case ARMV7:
+				defaults.architectures = [ARMV7];
+			case X86:
+				defaults.architectures = [X86];
+			case X64:
+				defaults.architectures = [X64];
+			default:
+				defaults.architectures = [];
+		}
+
+		defaults.window.allowHighDPI = false;
+
+		for (i in 1...project.windows.length)
+		{
+			defaults.windows.push(defaults.window);
+		}
+
+		defaults.merge(project);
+		project = defaults;
+
+		for (excludeArchitecture in project.excludeArchitectures)
+		{
+			project.architectures.remove(excludeArchitecture);
+		}
 
 		for (architecture in project.architectures)
 		{
@@ -138,14 +221,7 @@ class LinuxPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			var hlPath = ConfigHelper.getConfigValue("PATH_HASHLINK");
-			for (fileToCopy in ["bin/hl", "lib/libhl.so"])
-			{
-				var filename = Path.withoutDirectory(fileToCopy);
-				System.copyFile('$hlPath/$fileToCopy', '$applicationDirectory/$filename');
-			}
-			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
-			System.renameFile(Path.combine(applicationDirectory, "hl"), executablePath);
+			HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath, is64);
 		}
 		else if (targetType == "nodejs")
 		{

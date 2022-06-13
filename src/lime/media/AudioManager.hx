@@ -19,9 +19,6 @@ class AudioManager
 {
 	public static var context:AudioContext;
 
-	static var audioSources:Array<AudioSource> = [];
-	static var sourcesToRemove:Array<AudioSource> = [];
-
 	public static function init(context:AudioContext = null)
 	{
 		if (AudioManager.context == null)
@@ -72,40 +69,6 @@ class AudioManager
 			}
 		}
 		#end
-	}
-
-	public static function addAudioSource(source:AudioSource)
-	{
-		if(audioSources.indexOf(source) == -1)
-		{
-			audioSources.push(source);
-		}
-	}
-
-	public static function removeAudioSource(source:AudioSource)
-	{
-		var idx = audioSources.indexOf(source);
-		if (idx >= 0)
-		{
-			sourcesToRemove.push(source);
-		}
-	}
-
-	public static function update()
-	{
-		for (source in audioSources)
-		{
-			source.update();
-		}
-
-		while (sourcesToRemove.length > 0)
-		{
-			var source = sourcesToRemove.pop();
-			if(audioSources.indexOf(source) != -1)
-			{
-				audioSources.remove(source);
-			} 
-		}
 	}
 
 	public static function shutdown():Void
