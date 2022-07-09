@@ -902,8 +902,30 @@ class IOSPlatform extends PlatformTarget
 		if (hasCocoapods)
 		{
 			//we assume cocoapods is installed for now
+			//"pod install" can add a significant amount of time to each update,
+			//so we only run it if we need to.
 
-			System.runCommand(targetDirectory, "pod", ["install"]);
+			var podfile = targetDirectory + "/Podfile";
+			var lastPodfile = targetDirectory + "/.lastbuiltpodfile";
+			var podfileLock = targetDirectory + "/Podfile.lock";
+			var manifestLock = targetDirectory + "/Pods/Manifest.lock";
+			
+			var runPodInstall =
+				
+				// check if Podfile itself has been modified
+				!FileSystem.exists(lastPodfile) ||
+				System.runCommand(targetDirectory, "diff", ["Podfile", ".lastbuiltpodfile"]) != 0 ||
+				
+				// check if Podfile.lock is out of sync with Manifest.lock
+				!FileSystem.exists(podfileLock) ||
+				!FileSystem.exists(manifestLock) ||
+				System.runCommand(targetDirectory, "diff", ["Podfile.lock", "Pods/Manifest.lock"]) != 0;
+			
+			if(runPodInstall)
+			{
+				System.runCommand(targetDirectory, "pod", ["install"]);
+				System.copyFile(podfile, lastPodfile, null, false);
+			}
 		}
 
 		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC && command == "update")
