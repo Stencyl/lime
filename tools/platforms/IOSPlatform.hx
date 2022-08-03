@@ -910,16 +910,28 @@ class IOSPlatform extends PlatformTarget
 			var podfileLock = targetDirectory + "/Podfile.lock";
 			var manifestLock = targetDirectory + "/Pods/Manifest.lock";
 			
-			var runPodInstall =
+			var runPodInstall = true;
+			
+			try
+			{
+				//this may set runPodInstall to false, if all files exist and all diffs are clean.
+				//System.runCommand with safeExecute=false will throw an error for a non-clean diff
 				
-				// check if Podfile itself has been modified
-				!FileSystem.exists(lastPodfile) ||
-				System.runCommand(targetDirectory, "diff", ["Podfile", ".lastbuiltpodfile"]) != 0 ||
+				runPodInstall =
 				
-				// check if Podfile.lock is out of sync with Manifest.lock
-				!FileSystem.exists(podfileLock) ||
-				!FileSystem.exists(manifestLock) ||
-				System.runCommand(targetDirectory, "diff", ["Podfile.lock", "Pods/Manifest.lock"]) != 0;
+					// check if Podfile itself has been modified
+					!FileSystem.exists(lastPodfile) ||
+					System.runCommand(targetDirectory, "diff", ["Podfile", ".lastbuiltpodfile"], false) != 0 ||
+					
+					// check if Podfile.lock is out of sync with Manifest.lock
+					!FileSystem.exists(podfileLock) ||
+					!FileSystem.exists(manifestLock) ||
+					System.runCommand(targetDirectory, "diff", ["Podfile.lock", "Pods/Manifest.lock"], false) != 0;
+			}
+			catch (e:Dynamic)
+			{
+				//do nothing
+			}
 			
 			if(runPodInstall)
 			{
