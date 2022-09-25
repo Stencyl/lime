@@ -935,7 +935,7 @@ class IOSPlatform extends PlatformTarget
 			
 			if(runPodInstall)
 			{
-				System.runCommand(targetDirectory, "pod", ["install"]);
+				System.runCommand(targetDirectory, "pod", ["install", "--repo-update"]);
 				System.copyFile(podfile, lastPodfile, null, false);
 			}
 		}
