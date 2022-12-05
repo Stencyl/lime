@@ -41,6 +41,11 @@ class AndroidHelper
 			args.push("--info");
 		}
 
+		if (System.hostArchitecture == X64)
+		{
+			args.push("-Dorg.gradle.jvmargs=-Xmx4096m -Xms256m -XX:MaxMetaspaceSize=256m -XX:+HeapDumpOnOutOfMemoryError");
+		}
+
 		if (System.hostPlatform != WINDOWS)
 		{
 			System.runCommand("", "chmod", ["755", Path.combine(projectDirectory, "gradlew")]);
