@@ -234,7 +234,7 @@ class HTML5AudioSource
 	public function setPosition(value:Vector4):Vector4
 	{
 		#if lime_howlerjs
-		if (parent.buffer.__srcHowl != null && parent.buffer.__srcHowl.pos != null) parent.buffer.__srcHowl.pos(value.x, value.y, value.z, id);
+		if (parent.buffer != null && parent.buffer.__srcHowl != null && parent.buffer.__srcHowl.pos != null) parent.buffer.__srcHowl.pos(value.x, value.y, value.z, id);
 		// There are more settings to the position of the sound on the "pannerAttr()" function of howler. Maybe somebody who understands sound should look into it?
 		#end
 

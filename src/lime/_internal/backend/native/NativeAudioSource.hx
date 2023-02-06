@@ -412,7 +412,7 @@ class NativeAudioSource
 			else if (parent.buffer != null)
 			{
 				AL.sourceRewind(handle);
-				
+
 				// AL.sourcef (handle, AL.SEC_OFFSET, (value + parent.offset) / 1000);
 
 				var secondOffset = (value + parent.offset) / 1000;
