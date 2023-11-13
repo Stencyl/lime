@@ -804,6 +804,21 @@ class IOSPlatform extends PlatformTarget
 			]);
 		}
 
+		// Merge entitlements files
+		var entitlementsFiles = System.readDirectory(projectDirectory).filter(function(fileName:String)
+		{
+			return fileName.substr(-13) == ".entitlements" && fileName != projectDirectory + "/" + project.app.file + ".entitlements";
+		});
+		for (plist in entitlementsFiles)
+		{
+			System.runCommand(project.workingDirectory, "/usr/libexec/PlistBuddy", [
+				"-x",
+				"-c",
+				"Merge '" + plist + "'",
+				projectDirectory + "/" + project.app.file + ".entitlements"
+			]);
+		}		
+
 		System.mkdir(projectDirectory + "/lib");
 
 		for (archID in 0...6)
