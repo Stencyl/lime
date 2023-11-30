@@ -14,6 +14,8 @@ apply plugin: 'com.android.library'
 android {
 	compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
 	buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+
+	namespace 'org.haxe.extension'
 	
 	defaultConfig {
 		minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
