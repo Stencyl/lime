@@ -127,7 +127,7 @@ jobs:
           cd ndll
           find Android -type f -name "*.so" | sed 's/\// /' | while read dir asset; do
             zip -j $dir-$asset.zip $dir/$asset
-            hub release edit -a $dir-$asset.zip#$dir/$asset -m "" "ndll/${INPUT_NDLL_HASH}"
+            gh release upload "ndll/${INPUT_NDLL_HASH}" $dir-$asset.zip#$dir/$asset
           done
 
   hashlink-ndll:
@@ -214,7 +214,7 @@ jobs:
               CYGWIN*|MINGW32*|MSYS*|MINGW*) powershell Compress-Archive $dir/$asset $dir-$asset.zip ;;
               *) zip -j $dir-$asset.zip $dir/$asset ;;
             esac
-            hub release edit -a $dir-$asset.zip#$dir/$asset -m "" "ndll/${INPUT_NDLL_HASH}"
+            gh release upload "ndll/${INPUT_NDLL_HASH}" $dir-$asset.zip#$dir/$asset
           done
 
   ios-ndll:
@@ -260,7 +260,7 @@ jobs:
           cd ndll
           find iPhone -type f -name "*.a" | sed 's/\// /' | while read dir asset; do
             zip -j $dir-$asset.zip $dir/$asset
-            hub release edit -a $dir-$asset.zip#$dir/$asset -m "" "ndll/${INPUT_NDLL_HASH}"
+            gh release upload "ndll/${INPUT_NDLL_HASH}" $dir-$asset.zip#$dir/$asset
           done
 
   linux-ndll:
@@ -311,7 +311,7 @@ jobs:
           cd ndll
           find Linux* -type f -name "*.ndll" | sed 's/\// /' | while read dir asset; do
             zip -j $dir-$asset.zip $dir/$asset
-            hub release edit -a $dir-$asset.zip#$dir/$asset -m "" "ndll/${INPUT_NDLL_HASH}"
+            gh release upload "ndll/${INPUT_NDLL_HASH}" $dir-$asset.zip#$dir/$asset
           done
 
   macos-ndll:
@@ -356,7 +356,7 @@ jobs:
           cd ndll
           find Mac* -type f -name "*.ndll" | sed 's/\// /' | while read dir asset; do
             zip -j $dir-$asset.zip $dir/$asset
-            hub release edit -a $dir-$asset.zip#$dir/$asset -m "" "ndll/${INPUT_NDLL_HASH}"
+            gh release upload "ndll/${INPUT_NDLL_HASH}" $dir-$asset.zip#$dir/$asset
           done
 
   windows-ndll:
@@ -402,5 +402,5 @@ jobs:
         cd ndll
           find Windows* -type f -name "*.ndll" | sed 's/\// /' | while read dir asset; do
             powershell Compress-Archive $dir/$asset $dir-$asset.zip
-            hub release edit -a $dir-$asset.zip#$dir/$asset -m "" "ndll/${INPUT_NDLL_HASH}"
+            gh release upload "ndll/${INPUT_NDLL_HASH}" $dir-$asset.zip#$dir/$asset
           done
