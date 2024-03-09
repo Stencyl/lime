@@ -6,7 +6,7 @@ env:
 jobs:
 
   check-ndll-releases:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     outputs:
       ndll_hash: ${{ steps.get_project_hash.outputs.hash }}
       released: ${{ steps.check_release.outputs.released }}
@@ -64,7 +64,7 @@ jobs:
   android-ndll:
     needs: check-ndll-releases
     if: needs.check-ndll-releases.outputs.released == 'false'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
 
       - uses: actions/checkout@v2
@@ -135,7 +135,7 @@ jobs:
     if: needs.check-ndll-releases.outputs.released == 'false'
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-11, windows-latest]
+        os: [ubuntu-20.04, macos-11, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -266,7 +266,7 @@ jobs:
   linux-ndll:
     needs: check-ndll-releases
     if: needs.check-ndll-releases.outputs.released == 'false'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
 
       - uses: actions/checkout@v2
