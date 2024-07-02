@@ -453,6 +453,11 @@ class ProjectXMLParser extends HXProject
 
 	private function parseAssetsElement(element:Access, basePath:String = "", isTemplate:Bool = false):Void
 	{
+		if(!isTemplate && haxedefs.exists("custom_assets"))
+		{
+			return;
+		}
+		
 		var path = "";
 		var embed:Null<Bool> = null;
 		var library = null;

@@ -410,6 +410,11 @@ class AssetHelper
 
 	public static function processLibraries(project:HXProject, targetDirectory:String = null):Void
 	{
+		if(project.haxedefs.exists("custom_assets"))
+		{
+			return;
+		}
+		
 		var hasManifest = new Map<String, Bool>();
 		var libraryMap = new Map<String, Bool>();
 
@@ -551,7 +556,7 @@ class AssetHelper
 			processPackedLibraries(project, targetDirectory);
 		}
 
-		if (project.assets.length == 0)
+		if (project.assets.length == 0 && !project.haxedefs.exists("custom_assets"))
 		{
 			project.haxedefs.set("disable_preloader_assets", "1");
 		}
