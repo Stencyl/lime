@@ -8,10 +8,12 @@ import lime.graphics.OpenGLRenderContext;
 import lime.graphics.RenderContext;
 import lime.math.Rectangle;
 import lime.media.AudioManager;
+import lime.system.CFFI;
 import lime.system.Clipboard;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
+import lime.system.Orientation;
 import lime.system.Sensor;
 import lime.system.SensorType;
 import lime.system.System;
@@ -49,6 +51,7 @@ class NativeApplication
 	private var gamepadEventInfo = new GamepadEventInfo();
 	private var joystickEventInfo = new JoystickEventInfo();
 	private var keyEventInfo = new KeyEventInfo();
+	private var orientationEventInfo = new OrientationEventInfo();
 	private var mouseEventInfo = new MouseEventInfo();
 	private var renderEventInfo = new RenderEventInfo(RENDER);
 	private var sensorEventInfo = new SensorEventInfo();
@@ -58,6 +61,10 @@ class NativeApplication
 	private var windowEventInfo = new WindowEventInfo();
 
 	public var handle:Dynamic;
+
+	#if android
+	private var deviceOrientationListener:OrientationChangeListener;
+	#end
 
 	private var pauseTimer:Int;
 	private var parent:Application;
@@ -82,6 +89,13 @@ class NativeApplication
 		Sensor.registerSensor(SensorType.ACCELEROMETER, 0);
 		#end
 
+		#if android
+		var setDeviceOrientationListener = JNI.createStaticMethod("org/haxe/lime/GameActivity", "setDeviceOrientationListener",
+			"(Lorg/haxe/lime/HaxeObject;)V");
+		deviceOrientationListener = new OrientationChangeListener(handleJNIOrientationEvent);
+		setDeviceOrientationListener(deviceOrientationListener);
+		#end
+
 		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_application_create();
 		#end
@@ -89,13 +103,13 @@ class NativeApplication
 
 	private function advanceTimer():Void
 	{
-		#if lime_cffi
+		#if (lime_cffi && !macro)
 		if (pauseTimer > -1)
 		{
 			var offset = System.getTimer() - pauseTimer;
-			for (i in 0...Timer.sRunningTimers.length)
+			for (timer in Timer.sRunningTimers)
 			{
-				if (Timer.sRunningTimers[i] != null) Timer.sRunningTimers[i].mFireAt += offset;
+				if (timer.mRunning) timer.mFireAt += offset;
 			}
 			pauseTimer = -1;
 		}
@@ -117,6 +131,9 @@ class NativeApplication
 		NativeCFFI.lime_text_event_manager_register(handleTextEvent, textEventInfo);
 		NativeCFFI.lime_touch_event_manager_register(handleTouchEvent, touchEventInfo);
 		NativeCFFI.lime_window_event_manager_register(handleWindowEvent, windowEventInfo);
+		#if (ios || android)
+		NativeCFFI.lime_orientation_event_manager_register(handleOrientationEvent, orientationEventInfo);
+		#end
 		#if (ios || android || tvos)
 		NativeCFFI.lime_sensor_event_manager_register(handleSensorEvent, sensorEventInfo);
 		#end
@@ -145,7 +162,7 @@ class NativeApplication
 		#elseif lime_cffi
 		var result = NativeCFFI.lime_application_exec(handle);
 
-		#if (!emscripten && !ios && !nodejs)
+		#if (!webassembly && !ios && !nodejs)
 		parent.onExit.dispatch(result);
 		#end
 
@@ -162,6 +179,15 @@ class NativeApplication
 
 		#if (!macro && lime_cffi)
 		NativeCFFI.lime_application_quit(handle);
+		#end
+	}
+
+	public function getDeviceOrientation():Orientation
+	{
+		#if (!macro && lime_cffi)
+		return cast NativeCFFI.lime_system_get_device_orientation();
+		#else
+		return UNKNOWN;
 		#end
 	}
 
@@ -187,7 +213,7 @@ class NativeApplication
 	{
 		for (window in parent.windows)
 		{
-			window.onDropFile.dispatch(#if hl @:privateAccess String.fromUTF8(dropEventInfo.file) #else dropEventInfo.file #end);
+			window.onDropFile.dispatch(CFFI.stringValue(dropEventInfo.file));
 		}
 	}
 
@@ -226,10 +252,6 @@ class NativeApplication
 			case HAT_MOVE:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
 				if (joystick != null) joystick.onHatMove.dispatch(joystickEventInfo.index, joystickEventInfo.eventValue);
-
-			case TRACKBALL_MOVE:
-				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onTrackballMove.dispatch(joystickEventInfo.index, joystickEventInfo.x, joystickEventInfo.y);
 
 			case BUTTON_DOWN:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
@@ -289,7 +311,7 @@ class NativeApplication
 			}
 
 			#if rpi
-			if (keyCode == ESCAPE && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled)
+			if (keyCode == ESCAPE && modifier.ctrlKey && type == KEY_DOWN)
 			{
 				System.exit(0);
 			}
@@ -335,10 +357,14 @@ class NativeApplication
 			switch (mouseEventInfo.type)
 			{
 				case MOUSE_DOWN:
+					window.clickCount = mouseEventInfo.clickCount;
 					window.onMouseDown.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					window.clickCount = 0;
 
 				case MOUSE_UP:
+					window.clickCount = mouseEventInfo.clickCount;
 					window.onMouseUp.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					window.clickCount = 0;
 
 				case MOUSE_MOVE:
 					window.onMouseMove.dispatch(mouseEventInfo.x, mouseEventInfo.y);
@@ -351,6 +377,27 @@ class NativeApplication
 			}
 		}
 	}
+
+	private function handleOrientationEvent():Void
+	{
+		var orientation:Orientation = cast orientationEventInfo.orientation;
+		var display = orientationEventInfo.display;
+		switch (orientationEventInfo.type)
+		{
+			case DISPLAY_ORIENTATION_CHANGE:
+				parent.onDisplayOrientationChange.dispatch(display, orientation);
+			case DEVICE_ORIENTATION_CHANGE:
+				parent.onDeviceOrientationChange.dispatch(orientation);
+		}
+	}
+
+	#if android
+	private function handleJNIOrientationEvent(newOrientation:Int):Void
+	{
+		var orientation:Orientation = cast newOrientation;
+		parent.onDeviceOrientationChange.dispatch(orientation);
+	}
+	#end
 
 	private function handleRenderEvent():Void
 	{
@@ -426,11 +473,10 @@ class NativeApplication
 			switch (textEventInfo.type)
 			{
 				case TEXT_INPUT:
-					window.onTextInput.dispatch(#if hl @:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end);
+					window.onTextInput.dispatch(CFFI.stringValue(textEventInfo.text));
 
 				case TEXT_EDIT:
-					window.onTextEdit.dispatch(#if hl @:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end, textEventInfo.start,
-						textEventInfo.length);
+					window.onTextEdit.dispatch(CFFI.stringValue(textEventInfo.text), textEventInfo.start, textEventInfo.length);
 
 				default:
 			}
@@ -561,26 +607,29 @@ class NativeApplication
 					window.__fullscreen = false;
 					window.__minimized = false;
 					window.onRestore.dispatch();
+
+				case WINDOW_SHOW:
+					window.onShow.dispatch();
+
+				case WINDOW_HIDE:
+					window.onHide.dispatch();
 			}
 		}
 	}
 
 	private function updateTimer():Void
 	{
-		#if lime_cffi
+		#if (lime_cffi && !macro)
 		if (Timer.sRunningTimers.length > 0)
 		{
 			var currentTime = System.getTimer();
-			var foundNull = false;
-			var timer;
+			var foundStopped = false;
 
-			for (i in 0...Timer.sRunningTimers.length)
+			for (timer in Timer.sRunningTimers)
 			{
-				timer = Timer.sRunningTimers[i];
-
-				if (timer != null)
+				if (timer.mRunning)
 				{
-					if (timer.mRunning && currentTime >= timer.mFireAt)
+					if (currentTime >= timer.mFireAt)
 					{
 						timer.mFireAt += timer.mTime;
 						timer.run();
@@ -588,15 +637,15 @@ class NativeApplication
 				}
 				else
 				{
-					foundNull = true;
+					foundStopped = true;
 				}
 			}
 
-			if (foundNull)
+			if (foundStopped)
 			{
 				Timer.sRunningTimers = Timer.sRunningTimers.filter(function(val)
 				{
-					return val != null;
+					return val.mRunning;
 				});
 			}
 		}
@@ -633,7 +682,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract ApplicationEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ApplicationEventType(Int)
 {
 	var UPDATE = 0;
 	var EXIT = 1;
@@ -654,7 +703,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract ClipboardEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ClipboardEventType(Int)
 {
 	var UPDATE = 0;
 }
@@ -676,7 +725,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract DropEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract DropEventType(Int)
 {
 	var DROP_FILE = 0;
 }
@@ -704,7 +753,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract GamepadEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract GamepadEventType(Int)
 {
 	var AXIS_MOVE = 0;
 	var BUTTON_DOWN = 1;
@@ -738,11 +787,10 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract JoystickEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract JoystickEventType(Int)
 {
 	var AXIS_MOVE = 0;
 	var HAT_MOVE = 1;
-	var TRACKBALL_MOVE = 2;
 	var BUTTON_DOWN = 3;
 	var BUTTON_UP = 4;
 	var CONNECT = 5;
@@ -751,12 +799,12 @@ class NativeApplication
 
 @:keep /*private*/ class KeyEventInfo
 {
-	public var keyCode: Float;
+	public var keyCode:Float;
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode: Float = 0, modifier:Int = 0)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Float = 0, modifier:Int = 0)
 	{
 		this.type = type;
 		this.windowID = windowID;
@@ -770,7 +818,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract KeyEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract KeyEventType(Int)
 {
 	var KEY_DOWN = 0;
 	var KEY_UP = 1;
@@ -785,8 +833,10 @@ class NativeApplication
 	public var windowID:Int;
 	public var x:Float;
 	public var y:Float;
+	public var clickCount:Int;
 
-	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0)
+	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0,
+			clickCount:Int = 0)
 	{
 		this.type = type;
 		this.windowID = 0;
@@ -795,15 +845,16 @@ class NativeApplication
 		this.button = button;
 		this.movementX = movementX;
 		this.movementY = movementY;
+		this.clickCount = clickCount;
 	}
 
 	public function clone():MouseEventInfo
 	{
-		return new MouseEventInfo(type, windowID, x, y, button, movementX, movementY);
+		return new MouseEventInfo(type, windowID, x, y, button, movementX, movementY, clickCount);
 	}
 }
 
-@:enum private abstract MouseEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MouseEventType(Int)
 {
 	var MOUSE_DOWN = 0;
 	var MOUSE_UP = 1;
@@ -826,7 +877,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract RenderEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract RenderEventType(Int)
 {
 	var RENDER = 0;
 	var RENDER_CONTEXT_LOST = 1;
@@ -856,7 +907,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract SensorEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract SensorEventType(Int)
 {
 	var ACCELEROMETER = 0;
 }
@@ -885,7 +936,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract TextEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TextEventType(Int)
 {
 	var TEXT_INPUT = 0;
 	var TEXT_EDIT = 1;
@@ -920,7 +971,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract TouchEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TouchEventType(Int)
 {
 	var TOUCH_START = 0;
 	var TOUCH_END = 1;
@@ -952,7 +1003,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract WindowEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract WindowEventType(Int)
 {
 	var WINDOW_ACTIVATE = 0;
 	var WINDOW_CLOSE = 1;
@@ -967,4 +1018,49 @@ class NativeApplication
 	var WINDOW_MOVE = 10;
 	var WINDOW_RESIZE = 11;
 	var WINDOW_RESTORE = 12;
+	var WINDOW_SHOW = 13;
+	var WINDOW_HIDE = 14;
 }
+
+@:keep /*private*/ class OrientationEventInfo
+{
+	public var orientation:Int;
+	public var display:Int;
+	public var type:OrientationEventType;
+
+	public function new(type:OrientationEventType = null, orientation:Int = 0, display:Int = -1)
+	{
+		this.type = type;
+		this.orientation = orientation;
+		this.display = display;
+	}
+
+	public function clone():OrientationEventInfo
+	{
+		return new OrientationEventInfo(type, orientation, display);
+	}
+}
+
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract OrientationEventType(Int)
+{
+	var DISPLAY_ORIENTATION_CHANGE = 0;
+	var DEVICE_ORIENTATION_CHANGE = 1;
+}
+
+#if android
+private class OrientationChangeListener implements JNISafety
+{
+	private var callback:Int->Void;
+
+	public function new(callback:Int->Void)
+	{
+		this.callback = callback;
+	}
+
+	@:runOnMainThread
+	public function onOrientationChanged(orientation:Int):Void
+	{
+		callback(orientation);
+	}
+}
+#end

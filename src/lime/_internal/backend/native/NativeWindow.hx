@@ -15,6 +15,7 @@ import lime.graphics.OpenGLRenderContext;
 import lime.graphics.RenderContext;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.system.CFFI;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
@@ -123,11 +124,7 @@ class NativeWindow
 		var context = new RenderContext();
 		context.window = parent;
 
-		#if hl
-		var contextType = @:privateAccess String.fromUTF8(NativeCFFI.lime_window_get_context_type(handle));
-		#else
-		var contextType:String = NativeCFFI.lime_window_get_context_type(handle);
-		#end
+		var contextType:String = CFFI.stringValue(NativeCFFI.lime_window_get_context_type(handle));
 
 		switch (contextType)
 		{
@@ -135,6 +132,7 @@ class NativeWindow
 				var gl = new NativeOpenGLRenderContext();
 
 				useHardware = true;
+				contextAttributes.hardware = true;
 
 				#if lime_opengl
 				context.gl = gl;
@@ -158,6 +156,7 @@ class NativeWindow
 
 			default:
 				useHardware = false;
+				contextAttributes.hardware = false;
 
 				#if lime_cairo
 				context.cairo = cairo;
@@ -176,6 +175,13 @@ class NativeWindow
 
 		setFrameRate(Reflect.hasField(attributes, "frameRate") ? attributes.frameRate : 60);
 		#end
+
+		// SDL 2 enables text input events by default, but we want them only
+		// when requested. otherwise, we might get weird behavior like IME
+		// candidate windows appearing unexpectedly when holding down a key.
+		// See, for example: openfl/openfl#2697
+		// it appears that SDL 3 may behave differently, if we ever upgrade.
+		setTextInputEnabled(false);
 	}
 
 	public function alert(message:String, title:String):Void
@@ -299,6 +305,18 @@ class NativeWindow
 		return mouseLock;
 	}
 
+	public function getOpacity():Float
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			return NativeCFFI.lime_window_get_opacity(handle);
+			#end
+		}
+
+		return 1.0;
+	}
+
 	public function getTextInputEnabled():Bool
 	{
 		if (handle != null)
@@ -332,7 +350,10 @@ class NativeWindow
 				var windowWidth = Std.int(parent.__width * parent.__scale);
 				var windowHeight = Std.int(parent.__height * parent.__scale);
 
-				var x, y, width, height;
+				var x:Int;
+				var y:Int;
+				var width:Int;
+				var height:Int;
 
 				if (rect != null)
 				{
@@ -445,6 +466,26 @@ class NativeWindow
 		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_resize(handle, width, height);
+			#end
+		}
+	}
+
+	public function setMinSize(width:Int, height:Int):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_minimum_size(handle, width, height);
+			#end
+		}
+	}
+
+	public function setMaxSize(width:Int, height:Int):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_maximum_size(handle, width, height);
 			#end
 		}
 	}
@@ -628,6 +669,16 @@ class NativeWindow
 		return value;
 	}
 
+	public function setOpacity(value:Float):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_opacity(handle, value);
+			#end
+		}
+	}
+
 	public function setResizable(value:Bool):Bool
 	{
 		if (handle != null)
@@ -657,6 +708,18 @@ class NativeWindow
 		return value;
 	}
 
+	public function setVisible(value:Bool):Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_visible(handle, value);
+			#end
+		}
+
+		return value;
+	}
+
 	public function warpMouse(x:Int, y:Int):Void
 	{
 		#if (!macro && lime_cffi)
@@ -665,7 +728,7 @@ class NativeWindow
 	}
 }
 
-@:enum private abstract MouseCursorType(Int) from Int to Int
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MouseCursorType(Int) from Int to Int
 {
 	var HIDDEN = 0;
 	var ARROW = 1;
@@ -682,7 +745,7 @@ class NativeWindow
 	var WAIT_ARROW = 12;
 }
 
-@:enum private abstract WindowFlags(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract WindowFlags(Int)
 {
 	var WINDOW_FLAG_FULLSCREEN = 0x00000001;
 	var WINDOW_FLAG_BORDERLESS = 0x00000002;

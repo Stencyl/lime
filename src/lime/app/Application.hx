@@ -2,6 +2,7 @@ package lime.app;
 
 import lime.graphics.RenderContext;
 import lime.system.System;
+import lime.system.Orientation;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
 import lime.ui.GamepadButton;
@@ -22,17 +23,22 @@ import lime.utils.Preloader;
 	to override "on" functions in the class in order to handle standard events
 	that are relevant.
 **/
-@:access(lime.ui.Window)
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.ui.Window)
 class Application extends Module
 {
 	/**
 		The current Application instance that is executing
 	**/
 	public static var current(default, null):Application;
+
+	/**
+		The device's orientation.
+	**/
+	public var deviceOrientation(get, never):Orientation;
 
 	/**
 		Meta-data values for the application, such as a version or a package name
@@ -53,6 +59,19 @@ class Application extends Module
 		Dispatched when a new window has been created by this application
 	**/
 	public var onCreateWindow = new Event<Window->Void>();
+
+	/**
+		Dispatched when the orientation of the display has changed.
+	**/
+	public var onDisplayOrientationChange = new Event<Int->Orientation->Void>();
+
+	/**
+		Dispatched when the orientation of the device has changed. Typically,
+		the display and device orientation values are the same. However, if the
+		display orientation is locked to portrait or landscape, the display and
+		device orientations may be different.
+	**/
+	public var onDeviceOrientationChange = new Event<Orientation->Void>();
 
 	/**
 		The Preloader for the current Application
@@ -225,15 +244,6 @@ class Application extends Module
 		@param	position	The current hat position
 	**/
 	public function onJoystickHatMove(joystick:Joystick, hat:Int, position:JoystickHatPosition):Void {}
-
-	/**
-		Called when a joystick axis move event is fired
-		@param	joystick	The current joystick
-		@param	trackball	The trackball that was moved
-		@param	x	The x movement of the trackball (between 0 and 1)
-		@param	y	The y movement of the trackball (between 0 and 1)
-	**/
-	public function onJoystickTrackballMove(joystick:Joystick, trackball:Int, x:Float, y:Float):Void {}
 
 	/**
 		Called when a key down event is fired on the primary window
@@ -514,7 +524,7 @@ class Application extends Module
 	{
 		application.onUpdate.add(update);
 		application.onExit.add(onModuleExit, false, 0);
-		application.onExit.add(__onModuleExit, false, 0);
+		application.onExit.add(__onModuleExit, false, -1000);
 
 		for (gamepad in Gamepad.devices)
 		{
@@ -549,13 +559,21 @@ class Application extends Module
 			__windowByID.remove(window.id);
 			window.close();
 
-			if (__windows.length == 0)
-			{
-				#if !lime_doc_gen
-				System.exit(0);
-				#end
-			}
+			__checkForAllWindowsClosed();
 		}
+	}
+
+	@:noCompletion private function __checkForAllWindowsClosed():Void
+	{
+		// air handles this automatically with NativeApplication.autoExit
+		#if !air
+		if (__windows.length == 0)
+		{
+			#if !lime_doc_gen
+			System.exit(0);
+			#end
+		}
+		#end
 	}
 
 	@:noCompletion private function __onGamepadConnect(gamepad:Gamepad):Void
@@ -577,12 +595,21 @@ class Application extends Module
 		joystick.onButtonUp.add(onJoystickButtonUp.bind(joystick));
 		joystick.onDisconnect.add(onJoystickDisconnect.bind(joystick));
 		joystick.onHatMove.add(onJoystickHatMove.bind(joystick));
-		joystick.onTrackballMove.add(onJoystickTrackballMove.bind(joystick));
 	}
 
 	@:noCompletion private function __onModuleExit(code:Int):Void
 	{
+		if (onExit.canceled)
+		{
+			return;
+		}
+
+		__unregisterLimeModule(this);
 		__backend.exit();
+		if (Application.current == this)
+		{
+			Application.current = null;
+		}
 	}
 
 	@:noCompletion private function __onWindowClose(window:Window):Void
@@ -607,8 +634,6 @@ class Application extends Module
 		Touch.onStart.remove(onTouchStart);
 		Touch.onMove.remove(onTouchMove);
 		Touch.onEnd.remove(onTouchEnd);
-
-		onModuleExit(0);
 	}
 
 	// Get & Set Methods
@@ -626,11 +651,14 @@ class Application extends Module
 	{
 		return __windows;
 	}
+
+	@:noCompletion private function get_deviceOrientation():Orientation
+	{
+		return __backend.getDeviceOrientation();
+	}
 }
 
-#if kha
-@:noCompletion private typedef ApplicationBackend = lime._internal.backend.kha.KhaApplication;
-#elseif air
+#if air
 @:noCompletion private typedef ApplicationBackend = lime._internal.backend.air.AIRApplication;
 #elseif flash
 @:noCompletion private typedef ApplicationBackend = lime._internal.backend.flash.FlashApplication;

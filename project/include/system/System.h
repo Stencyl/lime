@@ -28,6 +28,8 @@ namespace lime {
 
 			static void GCEnterBlocking ();
 			static void GCExitBlocking ();
+			static void GCTryEnterBlocking ();
+			static void GCTryExitBlocking ();
 			static bool GetAllowScreenTimeout ();
 			static std::wstring* GetDeviceModel ();
 			static std::wstring* GetDeviceVendor ();
@@ -38,6 +40,7 @@ namespace lime {
 			static bool GetIOSTablet ();
 			#endif
 			static int GetNumDisplays ();
+			static int GetDeviceOrientation ();
 			static std::wstring* GetPlatformLabel ();
 			static std::wstring* GetPlatformName ();
 			static std::wstring* GetPlatformVersion ();
@@ -51,6 +54,7 @@ namespace lime {
 			#if defined(HX_WINDOWS) && !defined (HX_WINRT)
 			static bool SetWindowsConsoleMode (int handleType, int mode);
 			#endif
+			static void EnableDeviceOrientationChange(bool enable);
 
 		private:
 

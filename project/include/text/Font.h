@@ -49,17 +49,19 @@ namespace lime {
 			int GetAscender ();
 			int GetDescender ();
 			wchar_t *GetFamilyName ();
-			int GetGlyphIndex (char* character);
-			void* GetGlyphIndices (bool useCFFIValue, char* characters);
+			int GetGlyphIndex (const char* character);
+			void* GetGlyphIndices (bool useCFFIValue, const char* characters);
 			void* GetGlyphMetrics (bool useCFFIValue, int index);
 			int GetHeight ();
 			int GetNumGlyphs ();
 			int GetUnderlinePosition ();
 			int GetUnderlineThickness ();
+			int GetStrikethroughPosition ();
+			int GetStrikethroughThickness ();
 			int GetUnitsPerEM ();
 			int RenderGlyph (int index, Bytes *bytes, int offset = 0);
 			int RenderGlyphs (value indices, Bytes *bytes);
-			void SetSize (size_t size);
+			void SetSize (size_t size, size_t dpi);
 
 			void* library;
 			void* face;

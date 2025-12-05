@@ -57,6 +57,19 @@ namespace lime {
 	std::map<void*, CURL_XferInfo*> xferInfoValues;
 	Mutex curl_gc_mutex;
 
+	void free_header_values (const std::vector<char*>* values) {
+
+		if (values) {
+
+			for (auto it = values->begin (); it != values->end (); ++it) {
+
+				free (*it);
+
+			}
+
+		}
+
+	}
 
 	void gc_curl (value handle) {
 
@@ -121,6 +134,7 @@ namespace lime {
 				std::vector<char*>* values = headerValues[handle];
 				headerCallbacks.erase (handle);
 				headerValues.erase (handle);
+				free_header_values (values);
 				delete callback;
 				delete values;
 
@@ -254,6 +268,7 @@ namespace lime {
 				std::vector<char*>* values = headerValues[handle];
 				headerCallbacks.erase (handle);
 				headerValues.erase (handle);
+				free_header_values (values);
 				delete callback;
 				delete values;
 
@@ -581,6 +596,7 @@ namespace lime {
 
 				}
 
+				free_header_values (values);
 				values->clear ();
 
 			}
@@ -688,6 +704,7 @@ namespace lime {
 
 				}
 
+				free_header_values (values);
 				values->clear ();
 
 			}
@@ -718,7 +735,8 @@ namespace lime {
 					pos->v.i = position;
 
 					curl_gc_mutex.Unlock ();
-					length = *((int*)writeCallback->Call (bytes, pos));
+					vdynamic* _length = (vdynamic*)writeCallback->Call (bytes, pos);
+					length = (_length != NULL ? _length->v.i : 0);
 					curl_gc_mutex.Lock ();
 
 					if (length == CURL_WRITEFUNC_PAUSE) {
@@ -749,7 +767,8 @@ namespace lime {
 			ulnow->v.d = progress->ulnow;
 
 			curl_gc_mutex.Unlock ();
-			code = *((int*)progressCallback->Call (dltotal, dlnow, ultotal, ulnow));
+			vdynamic* _code = (vdynamic*)progressCallback->Call (dltotal, dlnow, ultotal, ulnow);
+			code = (_code != NULL ? _code->v.i : 0);
 			curl_gc_mutex.Lock ();
 
 			if (code != 0) { // CURLE_OK
@@ -776,7 +795,8 @@ namespace lime {
 			ulnow->v.i = xferInfo->ulnow;
 
 			curl_gc_mutex.Unlock ();
-			code = *((int*)xferInfoCallback->Call (dltotal, dlnow, ultotal, ulnow));
+			vdynamic* _code = (vdynamic*)xferInfoCallback->Call (dltotal, dlnow, ultotal, ulnow);
+			code = (_code != NULL ? _code->v.i : 0);
 			curl_gc_mutex.Lock ();
 
 			if (code != 0) {
@@ -1071,6 +1091,11 @@ namespace lime {
 		writeBufferPosition[handle] = 0;
 		writeBufferSize[handle] = 0;
 
+		CURLcode setopt_result = curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
+		if(setopt_result != CURLE_OK) {
+			printf("Failed to set CURLOPT_ACCEPT_ENCODING: %s\n", curl_easy_strerror(setopt_result));
+		}
+
 		curl_gc_mutex.Unlock ();
 
 		return handle;
@@ -1121,6 +1146,11 @@ namespace lime {
 		writeBuffers[handle] = NULL;
 		writeBufferPosition[handle] = 0;
 		writeBufferSize[handle] = 0;
+
+		CURLcode setopt_result = curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
+		if(setopt_result != CURLE_OK) {
+			printf("Failed to set CURLOPT_ACCEPT_ENCODING: %s\n", curl_easy_strerror(setopt_result));
+		}
 
 		curl_gc_mutex.Unlock ();
 
@@ -1678,8 +1708,9 @@ namespace lime {
 			{
 				curl_gc_mutex.Lock ();
 
-				if (headerCallbacks.find (handle) == headerCallbacks.end ()) {
+				if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
 
+					free_header_values (headerValues[handle]);
 					delete headerCallbacks[handle];
 					delete headerValues[handle];
 
@@ -1706,7 +1737,7 @@ namespace lime {
 
 				}
 
-				progressCallbacks[handle] = new ValuePointer (parameter);;
+				progressCallbacks[handle] = new ValuePointer (parameter);
 				progressValues[handle] = new CURL_Progress ();
 
 				code = curl_easy_setopt (easy_handle, type, progress_callback);
@@ -2105,8 +2136,9 @@ namespace lime {
 			{
 				curl_gc_mutex.Lock ();
 
-				if (headerCallbacks.find (handle) == headerCallbacks.end ()) {
+				if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
 
+					free_header_values (headerValues[handle]);
 					delete headerCallbacks[handle];
 					delete headerValues[handle];
 

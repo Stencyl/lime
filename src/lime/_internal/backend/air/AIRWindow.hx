@@ -5,13 +5,16 @@ import flash.display.NativeWindow;
 import flash.display.NativeWindowInitOptions;
 import flash.display.NativeWindowRenderMode;
 import flash.display.NativeWindowSystemChrome;
+import flash.geom.Point;
 import flash.events.Event;
 import flash.events.NativeWindowBoundsEvent;
+import flash.events.StageOrientationEvent;
 import flash.html.HTMLLoader;
 import flash.Lib;
 import lime._internal.backend.flash.FlashApplication;
 import lime._internal.backend.flash.FlashWindow;
 import lime.app.Application;
+import lime.system.Orientation;
 import lime.ui.Window;
 
 @:access(lime._internal.backend.flash.FlashApplication)
@@ -167,6 +170,8 @@ class AIRWindow extends FlashWindow
 			parent.context.attributes.depth = true;
 			parent.context.attributes.stencil = true;
 		}
+
+		parent.stage.addEventListener(StageOrientationEvent.ORIENTATION_CHANGE, handleStageOrientationChangeEvent);
 	}
 
 	public override function focus():Void
@@ -175,6 +180,41 @@ class AIRWindow extends FlashWindow
 		{
 			nativeWindow.activate();
 		}
+	}
+
+	private function handleStageOrientationChangeEvent(event:StageOrientationEvent):Void
+	{
+		if (parent.application.window == parent)
+		{
+			var newDeviceOrientation:Orientation = UNKNOWN;
+			switch (parent.stage.deviceOrientation) {
+				case DEFAULT:
+					newDeviceOrientation = PORTRAIT;
+				case UPSIDE_DOWN:
+					newDeviceOrientation = PORTRAIT_FLIPPED;
+				case ROTATED_LEFT:
+					newDeviceOrientation = LANDSCAPE;
+				case ROTATED_RIGHT:
+					newDeviceOrientation = LANDSCAPE_FLIPPED;
+				default:
+					newDeviceOrientation = UNKNOWN;
+			}
+			parent.application.onDeviceOrientationChange.dispatch(newDeviceOrientation);
+		}
+		var newDisplayOrientation:Orientation = UNKNOWN;
+		switch (event.afterOrientation) {
+			case DEFAULT:
+				newDisplayOrientation = PORTRAIT;
+			case UPSIDE_DOWN:
+				newDisplayOrientation = PORTRAIT_FLIPPED;
+			case ROTATED_LEFT:
+				newDisplayOrientation = LANDSCAPE_FLIPPED;
+			case ROTATED_RIGHT:
+				newDisplayOrientation = LANDSCAPE;
+			default:
+				newDisplayOrientation = UNKNOWN;
+		}
+		parent.application.onDisplayOrientationChange.dispatch(parent.display.id, newDisplayOrientation);
 	}
 
 	private function handleNativeWindowEvent(event:Event):Void
@@ -228,6 +268,22 @@ class AIRWindow extends FlashWindow
 		{
 			nativeWindow.width = width;
 			nativeWindow.height = height;
+		}
+	}
+
+	public override function setMinSize(width:Int, height:Int):Void
+	{
+		if (nativeWindow != null)
+		{
+			nativeWindow.minSize = new Point(width, height);
+		}
+	}
+
+	public override function setMaxSize(width:Int, height:Int):Void
+	{
+		if (nativeWindow != null)
+		{
+			nativeWindow.maxSize = new Point(width, height);
 		}
 	}
 

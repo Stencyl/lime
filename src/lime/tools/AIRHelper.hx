@@ -17,7 +17,10 @@ class AIRHelper
 		{
 			case MAC:
 
-			// extension = ".app";
+				if (airTarget == "bundle")
+				{
+					extension = ".app";
+				}
 
 			case IOS:
 				if (project.targetFlags.exists("simulator"))
@@ -89,7 +92,7 @@ class AIRHelper
 			default:
 		}
 
-		var signingOptions = [];
+		var signingOptions:Array<String> = [];
 
 		if (project.keystore != null)
 		{
@@ -132,6 +135,12 @@ class AIRHelper
 			signingOptions.push("samplePassword");
 		}
 
+		if (project.config.exists("air.tsa"))
+		{
+			signingOptions.push("-tsa");
+			signingOptions.push(project.config.getString("air.tsa"));
+		}
+
 		var args = ["-package"];
 
 		// TODO: Is this an old workaround fixed in newer AIR SDK?
@@ -149,11 +158,19 @@ class AIRHelper
 
 			if (project.debug)
 			{
-				args.push("-connect");
-
 				if (project.config.exists("air.connect"))
 				{
+					args.push("-connect");
 					args.push(project.config.getString("air.connect"));
+				}
+				else if (project.config.exists("air.listen"))
+				{
+					args.push("-listen");
+					args.push(project.config.getString("air.listen"));
+				}
+				else
+				{
+					args.push("-connect");
 				}
 			}
 
@@ -204,9 +221,17 @@ class AIRHelper
 			Sys.putEnv("AIR_NOANDROIDFLAIR", "true");
 		}
 
-		if (targetPlatform == IOS)
+		if (targetPlatform == IOS && System.hostPlatform == MAC)
 		{
-			Sys.putEnv("AIR_IOS_SIMULATOR_DEVICE", XCodeHelper.getSimulatorName(project));
+			var simulatorName = XCodeHelper.getSimulatorName(project);
+			if (simulatorName == null)
+			{
+				Log.warn("Skipping AIR_IOS_SIMULATOR_DEVICE environment variable because default simulator not found");
+			}
+			else
+			{
+				Sys.putEnv("AIR_IOS_SIMULATOR_DEVICE", simulatorName);
+			}
 		}
 
 		System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", args);
@@ -311,12 +336,28 @@ class AIRHelper
 
 			if (targetPlatform == ANDROID || targetPlatform == IOS)
 			{
-				// these are just generic default dimensions that are a bit
-				// larger than AIR's defaults for the simulator
 				args.push("-XscreenDPI");
-				args.push("252");
+				if (project.config.exists("air.screenDPI"))
+				{
+					var screenDPI = project.config.getString("air.screenDPI");
+					args.push(screenDPI);
+				}
+				else
+				{
+					args.push("252");
+				}
 				args.push("-screensize");
-				args.push("480x762:480x800");
+				if (project.config.exists("air.screensize"))
+				{
+					var screensize = project.config.getString("air.screensize");
+					args.push(screensize);
+				}
+				else
+				{
+					// these are just generic default dimensions that are a bit
+					// larger than AIR's defaults for the simulator
+					args.push("480x762:480x800");
+				}
 			}
 			if (targetPlatform == ANDROID)
 			{
@@ -365,8 +406,8 @@ class AIRHelper
 		if (targetPlatform == ANDROID && !project.targetFlags.exists("air-simulator"))
 		{
 			AndroidHelper.initialize(project);
-			var deviceID = null;
-			var adbFilter = null;
+			var deviceID:String = null;
+			var adbFilter:String = null;
 
 			// if (!Log.verbose) {
 
@@ -390,7 +431,7 @@ class AIRHelper
 		if (targetPlatform == ANDROID)
 		{
 			AndroidHelper.initialize(project);
-			var deviceID = null;
+			var deviceID:String = null;
 			AndroidHelper.uninstall(project.meta.packageName, deviceID);
 		}
 	}

@@ -42,6 +42,30 @@ namespace lime {
 	}
 
 
+	void System::GCTryEnterBlocking () {
+
+		if (!_isHL) {
+
+			// TODO: Only supported in HXCPP 4.3
+			// gc_try_blocking ();
+
+		}
+
+	}
+
+
+	void System::GCTryExitBlocking () {
+
+		if (!_isHL) {
+
+			// TODO: Only supported in HXCPP 4.3
+			//gc_try_unblocking ();
+
+		}
+
+	}
+
+
 	#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 	std::wstring* GetWMIValue (BSTR query, BSTR field) {
 
@@ -222,6 +246,15 @@ namespace lime {
 	}
 	#endif
 
+	int System::GetDeviceOrientation () {
+
+		return 0; // SDL_ORIENTATION_UNKNOWN
+
+	}
+
+	void System::EnableDeviceOrientationChange (bool enable) {
+
+	}
 
 }
 
