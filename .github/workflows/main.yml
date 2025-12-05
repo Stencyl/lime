@@ -36,7 +36,7 @@ jobs:
           script: |
             const ndllHash = core.getInput('ndll_hash', { required: true });
             core.info('NDLL Hash: ' + ndllHash);
-            await github.repos.getReleaseByTag({
+            await github.rest.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag: "ndll/"+ndllHash
