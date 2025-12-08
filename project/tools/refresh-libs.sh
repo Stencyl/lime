@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-cd ..
-git ls-files -s * > lib.txt
+cd ../lib
+git ls-files -s * | grep -v -e "custom" -v -e "\." > ../lib.txt
