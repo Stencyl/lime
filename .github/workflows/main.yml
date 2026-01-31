@@ -138,7 +138,7 @@ jobs:
     if: needs.check-ndll-releases.outputs.released == 'false'
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-13, windows-latest]
+        os: [ubuntu-22.04, macos-15-intel, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -224,7 +224,7 @@ jobs:
   ios-ndll:
     needs: check-ndll-releases
     if: needs.check-ndll-releases.outputs.released == 'false'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
 
       - uses: actions/checkout@v4
@@ -323,7 +323,7 @@ jobs:
   macos-ndll:
     needs: check-ndll-releases
     if: needs.check-ndll-releases.outputs.released == 'false'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
 
       - uses: actions/checkout@v4
