@@ -107,7 +107,7 @@ jobs:
         run: |
           haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
-          haxelib run lime rebuild linux -64 -release -nocolor -verbose -nocffi
+          haxelib run lime rebuild linux -x86_64 -release -nocolor -verbose -nocffi
 
       - name: Configure Android support
         run: |
@@ -163,14 +163,7 @@ jobs:
           haxelib install format --quiet
           haxelib git hxp https://github.com/Stencyl/hxp.git --quiet
           
-      - name: Rebuild Lime tools (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        run: |
-          haxelib dev lime ${{ github.workspace }}
-          haxelib run lime rebuild tools -nocolor -verbose -nocffi
-
-      - name: Rebuild Lime tools (macOS/Linux)
-        if: ${{ !startsWith(matrix.os, 'windows-') }}
+      - name: Rebuild Lime tools
         run: |
           haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
@@ -188,11 +181,7 @@ jobs:
           esac
           for hl_platform in ${hl_platforms[@]}; do
             hl_artifact="hashlink-$hl_semver-$hl_platform.$hl_extension"
-            if [[ $hl_platform == win* ]]; then
-              hl_arch="${hl_platform#win}"
-            else
-              hl_arch="64"
-            fi
+            hl_arch="x86_64"
             curl "$hl_url_base/$hl_version/$hl_artifact" -o "$hl_artifact"
             case "$hl_extension" in
               zip)
@@ -250,7 +239,7 @@ jobs:
         run: |
           haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
-          haxelib run lime rebuild macos -release -64 -nocolor -verbose -nocffi
+          haxelib run lime rebuild macos -arm64 -release -nocolor -verbose -nocffi
 
       - name: Rebuild Lime
         run: |
@@ -305,8 +294,7 @@ jobs:
 
       - name: Rebuild Lime
         run: |
-          haxelib run lime rebuild linux -64 -release -verbose -nocolor
-          haxelib run lime rebuild linux -32 -release -verbose -nocolor
+          haxelib run lime rebuild linux -x86_64 -release -verbose -nocolor
 
       - name: Upload Release Assets
         env:
@@ -352,7 +340,8 @@ jobs:
 
       - name: Rebuild Lime
         run: |
-          haxelib run lime rebuild macos -release -verbose -nocolor
+          haxelib run lime rebuild macos -arm64 -release -verbose -nocolor
+          haxelib run lime rebuild macos -x86_64 -release -verbose -nocolor
 
       - name: Upload Release Assets
         env:
@@ -398,8 +387,7 @@ jobs:
 
     - name: Rebuild Lime
       run: |
-        haxelib run lime rebuild windows -32 -release -verbose -nocolor
-        haxelib run lime rebuild windows -64 -release -verbose -nocolor
+        haxelib run lime rebuild windows -x86_64 -release -verbose -nocolor
 
     - name: Upload Release Assets
       env:
