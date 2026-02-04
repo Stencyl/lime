@@ -30,7 +30,11 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-buffer-verify.cc" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-buffer.cc" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-common.cc" />
+		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-coretext-font.cc" if="mac || ios" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-coretext-shape.cc" if="mac || ios" />
+		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-coretext.cc" if="mac || ios" />
+		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-directwrite-font.cc" if="windows HXCPP_M64" />
+		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-directwrite-shape.cc" if="windows HXCPP_M64" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-directwrite.cc" if="windows HXCPP_M64" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-draw.cc" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-face.cc" />
@@ -67,6 +71,7 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-ot-var.cc" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-outline.cc" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-paint.cc" />
+		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-paint-bounded.cc" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-paint-extents.cc" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-set.cc" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-shape-plan.cc" />
