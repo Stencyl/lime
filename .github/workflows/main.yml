@@ -88,8 +88,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          haxelib git hxcpp https://github.com/Stencyl/hxcpp.git --quiet
+          cd $(haxelib libpath hxcpp)/tools/hxcpp && haxe compile.hxml
           haxelib install format --quiet
           haxelib git hxp https://github.com/Stencyl/hxp.git --quiet
           
@@ -157,9 +157,10 @@ jobs:
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libpulse-dev
 
       - name: Install Haxe dependencies
+        shell: bash
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          haxelib git hxcpp https://github.com/Stencyl/hxcpp.git --quiet
+          cd $(haxelib libpath hxcpp)/tools/hxcpp && haxe compile.hxml
           haxelib install format --quiet
           haxelib git hxp https://github.com/Stencyl/hxp.git --quiet
           
@@ -226,8 +227,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          haxelib git hxcpp https://github.com/Stencyl/hxcpp.git --quiet
+          cd $(haxelib libpath hxcpp)/tools/hxcpp && haxe compile.hxml
           haxelib install format --quiet
           haxelib git hxp https://github.com/Stencyl/hxp.git --quiet
 
@@ -243,7 +244,8 @@ jobs:
 
       - name: Rebuild Lime
         run: |
-          haxelib run lime rebuild ios -release -verbose -nocolor
+          haxelib run lime rebuild ios -armv7 -arm64 -release -verbose -nocolor
+          haxelib run lime rebuild ios -simulator -x86_64 -arm64 -release -verbose -nocolor
 
       - name: Upload Release Assets
         env:
@@ -278,8 +280,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          haxelib git hxcpp https://github.com/Stencyl/hxcpp.git --quiet
+          cd $(haxelib libpath hxcpp)/tools/hxcpp && haxe compile.hxml
           haxelib install format --quiet
           haxelib git hxp https://github.com/Stencyl/hxp.git --quiet
 
@@ -324,8 +326,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          haxelib git hxcpp https://github.com/Stencyl/hxcpp.git --quiet
+          cd $(haxelib libpath hxcpp)/tools/hxcpp && haxe compile.hxml
           haxelib install format --quiet
           haxelib git hxp https://github.com/Stencyl/hxp.git --quiet
 
@@ -370,9 +372,10 @@ jobs:
         haxe-version: ${{ env.HAXE_VERSION }}
 
     - name: Install Haxe dependencies
+      shell: bash
       run: |
-        curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-        haxelib install ../hxcpp-4.3.45.zip --quiet
+        haxelib git hxcpp https://github.com/Stencyl/hxcpp.git --quiet
+        cd $(haxelib libpath hxcpp)/tools/hxcpp && haxe compile.hxml
         haxelib install format --quiet
         haxelib git hxp https://github.com/Stencyl/hxp.git --quiet
 

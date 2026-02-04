@@ -252,6 +252,7 @@ class IOSPlatform extends PlatformTarget
 		var armv7s = false;
 		var arm64 = false;
 		var i386 = false;
+		var x86_64 = false;
 		var architectures = project.architectures;
 
 		if (architectures == null || architectures.length == 0)
@@ -286,14 +287,14 @@ class IOSPlatform extends PlatformTarget
 				case X86:
 					valid_archs.push("i386");
 					i386 = true;
+				case X64:
+					valid_archs.push("x86_64");
+					x86_64 = true;
 				default:
 			}
 		}
 
 		context.CURRENT_ARCHS = "( " + valid_archs.join(",") + ") ";
-
-		valid_archs.push("x86_64");
-
 		context.VALID_ARCHS = valid_archs.join(" ");
 		context.THUMB_SUPPORT = armv6 ? "GCC_THUMB_SUPPORT = NO;" : "";
 
@@ -318,6 +319,7 @@ class IOSPlatform extends PlatformTarget
 		context.ARMV7S = armv7s;
 		context.ARM64 = arm64;
 		context.I386 = i386;
+		context.X86_64 = x86_64;
 		context.TARGET_DEVICES = switch (project.config.getString("ios.device", "universal"))
 		{
 			case "iphone": "1";
@@ -473,24 +475,43 @@ class IOSPlatform extends PlatformTarget
 
 	public override function rebuild():Void
 	{
-		var armv6 = (project.architectures.indexOf(Architecture.ARMV6) > -1 && !project.targetFlags.exists("simulator"));
-		var armv7 = (project.architectures.indexOf(Architecture.ARMV7) > -1 && !project.targetFlags.exists("simulator"));
-		var armv7s = (project.architectures.indexOf(Architecture.ARMV7S) > -1 && !project.targetFlags.exists("simulator"));
-		var arm64 = (command == "rebuild"
-			|| (project.architectures.indexOf(Architecture.ARM64) > -1 && !project.targetFlags.exists("simulator")));
-		var i386 = (project.architectures.indexOf(Architecture.X86) > -1 && project.targetFlags.exists("simulator"));
-		var x86_64 = (command == "rebuild" || project.targetFlags.exists("simulator"));
-
 		var arc = (project.targetFlags.exists("arc"));
 
 		var commands:Array<Array<String>> = [];
-
-		if (armv6) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV6"]);
-		if (armv7) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7"]);
-		if (armv7s) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S"]);
-		if (arm64) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64"]);
-		if (i386) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_M32", "-DHXCPP_CPP11"]);
-		if (x86_64) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11"]);
+		
+		if (project.targetFlags.exists("simulator"))
+		{
+			if(project.architectures.length == 0 && command == "rebuild")
+			{
+				project.architectures.push(Architecture.ARM64);
+				project.architectures.push(Architecture.X64);
+			}
+			
+			var arm64 = (project.architectures.indexOf(Architecture.ARM64) > -1);
+			var i386 = (project.architectures.indexOf(Architecture.X86) > -1);
+			var x86_64 = (project.architectures.indexOf(Architecture.X64) > -1);
+			
+			if (arm64) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_CPP11", "-DHXCPP_ARM64"]);
+			if (i386) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_CPP11", "-DHXCPP_X86"]);
+			if (x86_64) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_CPP11", "-DHXCPP_X86_64"]);
+		}
+		else
+		{
+			if(project.architectures.length == 0 && command == "rebuild")
+			{
+				project.architectures.push(Architecture.ARM64);
+			}
+			
+			var armv6 = (project.architectures.indexOf(Architecture.ARMV6) > -1);
+			var armv7 = (project.architectures.indexOf(Architecture.ARMV7) > -1);
+			var armv7s = (project.architectures.indexOf(Architecture.ARMV7S) > -1);
+			var arm64 = (project.architectures.indexOf(Architecture.ARM64) > -1);
+			
+			if (armv6) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV6"]);
+			if (armv7) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7"]);
+			if (armv7s) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S"]);
+			if (arm64) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64"]);
+		}
 
 		if (arc)
 		{
@@ -832,14 +853,18 @@ class IOSPlatform extends PlatformTarget
 			if (arch == "arm64" && !context.ARM64) continue;
 
 			if (arch == "i386" && !context.I386) continue;
+			
+			if (arch == "x86_64" && !context.X86_64) continue;
+			
+			var devicetype = project.targetFlags.exists("simulator") ? "iphonesim" : "iphoneos";
 
 			var libExt = [
-				".iphoneos.a",
-				".iphoneos-v7.a",
-				".iphoneos-v7s.a",
-				".iphoneos-64.a",
-				".iphonesim.a",
-				".iphonesim-64.a"
+				'.$devicetype-armv6.a',
+				'.$devicetype-armv7.a',
+				'.$devicetype-armv7s.a',
+				'.$devicetype-arm64.a',
+				'.$devicetype-x86.a',
+				'.$devicetype-x86_64.a'
 			][archID];
 
 			System.mkdir(projectDirectory + "/lib/" + arch);

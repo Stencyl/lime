@@ -18,8 +18,12 @@ else
 endif
 
 HAXE_OS := $(PLATFORM_NAME)
+BUILD_TYPE := device
+EXTRA_DEFINES :=
 ifeq ("$(HAXE_OS)","iphonesimulator")
    HAXE_OS := iphonesim
+   BUILD_TYPE := simulator
+   EXTRA_DEFINES := -D simulator
 endif
 CONFIG := $(CONFIG)-$(HAXE_OS)
 
@@ -28,14 +32,14 @@ LIB_MBEDTLS_DEST := $(DEBUG)/libmbedtls_hxcpp.a
 
 SIMULATOR_ARCH = i386 x86_64
 
-SUFFIX_i386 =
-SUFFIX_x86_64 = -64
-SUFFIX_armv6 =
-SUFFIX_armv7 = -v7
-SUFFIX_arm64 = -64
+SUFFIX_i386 = -x86
+SUFFIX_x86_64 = -x86_64
+SUFFIX_armv6 = -armv6
+SUFFIX_armv7 = -armv7
+SUFFIX_arm64 = -arm64
 
-HXCPP_FLAGS_i386 = -D simulator
-HXCPP_FLAGS_x86_64 = -D simulator -D HXCPP_M64
+HXCPP_FLAGS_i386 = -D HXCPP_X86
+HXCPP_FLAGS_x86_64 = -D HXCPP_X86_64
 HXCPP_FLAGS_armv6 = -D HXCPP_ARMV6
 HXCPP_FLAGS_armv7 = -D HXCPP_ARMV7
 HXCPP_FLAGS_arm64 = -D HXCPP_ARM64
@@ -52,8 +56,8 @@ debug_print:
 	@echo "Make $(HAXE_BUILDS)"
 
 $(HAXE_BUILDS): build-haxe-%:
-	@echo "Haxe $(if $(filter $*,$(SIMULATOR_ARCH)),simulator,device) build: $(CONFIG)$(SUFFIX_$*)"
-	haxe Build.hxml $(HXCPP_FLAGS_$*) -cpp build/$(CONFIG)$(SUFFIX_$*) $(DEBUG)
+	@echo "Haxe $(BUILD_TYPE) build: $(CONFIG)$(SUFFIX_$*)"
+	haxe Build.hxml $(HXCPP_FLAGS_$*) $(EXTRA_DEFINES) -cpp build/$(CONFIG)$(SUFFIX_$*) $(DEBUG)
 	cd build/$(CONFIG)$(SUFFIX_$*); ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
 		haxelib run ::CPP_BUILD_LIBRARY:: Build.xml haxe -Ddestination=$(CURDIR)/../lib/$*$(LIB_DEST) \
 		-options Options.txt $(DEBUG)

@@ -96,8 +96,16 @@ class TVOSHelper
 
 		if (project.targetFlags.exists("simulator"))
 		{
-			commands.push("-arch");
-			commands.push("x86_64");
+			if (project.targetFlags.exists("x86_64"))
+			{
+				commands.push("-arch");
+				commands.push("x86_64");
+			}
+			else
+			{
+				commands.push("-arch");
+				commands.push("arm64");
+			}
 		}
 
 		project.setenv("PLATFORM_NAME", platformName);
@@ -113,8 +121,16 @@ class TVOSHelper
 
 		if (project.targetFlags.exists("simulator"))
 		{
-			commands.push("-arch");
-			commands.push("x86_64");
+			if (project.targetFlags.exists("x86_64"))
+			{
+				commands.push("-arch");
+				commands.push("x86_64");
+			}
+			else
+			{
+				commands.push("-arch");
+				commands.push("arm64");
+			}
 		}
 
 		commands.push("-project");
