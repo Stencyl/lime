@@ -79,8 +79,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				::if ARMV6::1EF0A888121AE2F0003F2F59 /* lib/ApplicationMain.a in lib */,::end::
-				::if ARMV7::1EF0A888121AE2F0003F2F5A /* lib/ApplicationMain-v7.a in lib */,::end::
 				792E75C91C6C876900D01DE0 /* GameController.framework in Frameworks */,
 				792E75C91C6C876900D01DE1 /* CoreText.framework in Frameworks */,
 				7C1D3D2F27403D7800CFEBE5 /* CoreHaptics.framework in Frameworks */,
@@ -415,7 +413,12 @@
 				GCC_PREFIX_HEADER = "::APP_FILE::/::APP_FILE::-Prefix.pch";
 				INFOPLIST_FILE = "::APP_FILE::/::APP_FILE::-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;
-				"LIBRARY_SEARCH_PATHS[arch=arm64]" = (
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = (
+					"$(inherited)",
+					"\"$(SRCROOT)/::APP_FILE::/lib/arm64-sim-debug\"",
+					"\"$(SRCROOT)/::APP_FILE::/lib/arm64-sim\"",
+				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = (
 					"$(inherited)",
 					"\"$(SRCROOT)/::APP_FILE::/lib/arm64-debug\"",
 					"\"$(SRCROOT)/::APP_FILE::/lib/arm64\"",
@@ -432,13 +435,13 @@
 				);
 				"LIBRARY_SEARCH_PATHS[arch=i386]" = (
 					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/i386-debug\"",
-					"\"$(SRCROOT)/::APP_FILE::/lib/i386\"",
+					"\"$(SRCROOT)/::APP_FILE::/lib/i386-sim-debug\"",
+					"\"$(SRCROOT)/::APP_FILE::/lib/i386-sim\"",
 				);
 				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = (
 					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/x86_64-debug\"",
-					"\"$(SRCROOT)/::APP_FILE::/lib/x86_64\"",
+					"\"$(SRCROOT)/::APP_FILE::/lib/x86_64-sim-debug\"",
+					"\"$(SRCROOT)/::APP_FILE::/lib/x86_64-sim\"",
 				);
 				OTHER_LDFLAGS = (
 					::if HAS_COCOAPODS::"$(inherited)",::end::
@@ -475,7 +478,11 @@
 				GCC_PREFIX_HEADER = "::APP_FILE::/::APP_FILE::-Prefix.pch";
 				INFOPLIST_FILE = "::APP_FILE::/::APP_FILE::-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;
-				"LIBRARY_SEARCH_PATHS[arch=arm64]" = (
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = (
+					"$(inherited)",
+					"\"$(SRCROOT)/::APP_FILE::/lib/arm64-sim\"",
+				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = (
 					"$(inherited)",
 					"\"$(SRCROOT)/::APP_FILE::/lib/arm64\"",
 				);
@@ -489,11 +496,11 @@
 				);
 				"LIBRARY_SEARCH_PATHS[arch=i386]" = (
 					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/i386\"",
+					"\"$(SRCROOT)/::APP_FILE::/lib/i386-sim\"",
 				);
 				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = (
 					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/x86_64\"",
+					"\"$(SRCROOT)/::APP_FILE::/lib/x86_64-sim\"",
 				);
 				OTHER_LDFLAGS = (
 					::if HAS_COCOAPODS::"$(inherited)",::end::

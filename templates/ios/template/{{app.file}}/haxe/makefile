@@ -20,15 +20,17 @@ endif
 HAXE_OS := $(PLATFORM_NAME)
 BUILD_TYPE := device
 EXTRA_DEFINES :=
+SIMFLAG :=
 ifeq ("$(HAXE_OS)","iphonesimulator")
    HAXE_OS := iphonesim
    BUILD_TYPE := simulator
    EXTRA_DEFINES := -D simulator
+   SIMFLAG := -sim
 endif
 CONFIG := $(CONFIG)-$(HAXE_OS)
 
-LIB_DEST := $(DEBUG)/libApplicationMain.a
-LIB_MBEDTLS_DEST := $(DEBUG)/libmbedtls_hxcpp.a
+LIB_DEST := $(SIMFLAG)$(DEBUG)/libApplicationMain.a
+LIB_MBEDTLS_DEST := $(SIMFLAG)$(DEBUG)/libmbedtls_hxcpp.a
 
 SIMULATOR_ARCH = i386 x86_64
 

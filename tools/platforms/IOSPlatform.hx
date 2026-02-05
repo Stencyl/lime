@@ -857,6 +857,7 @@ class IOSPlatform extends PlatformTarget
 			if (arch == "x86_64" && !context.X86_64) continue;
 			
 			var devicetype = project.targetFlags.exists("simulator") ? "iphonesim" : "iphoneos";
+			var simflag = project.targetFlags.exists("simulator") ? "-sim" : "";
 
 			var libExt = [
 				'.$devicetype-armv6.a',
@@ -867,8 +868,8 @@ class IOSPlatform extends PlatformTarget
 				'.$devicetype-x86_64.a'
 			][archID];
 
-			System.mkdir(projectDirectory + "/lib/" + arch);
-			System.mkdir(projectDirectory + "/lib/" + arch + "-debug");
+			System.mkdir(projectDirectory + "/lib/" + arch + simflag);
+			System.mkdir(projectDirectory + "/lib/" + arch + simflag + "-debug");
 
 			for (ndll in project.ndlls)
 			{
@@ -876,8 +877,8 @@ class IOSPlatform extends PlatformTarget
 
 				var releaseLib = NDLL.getLibraryPath(ndll, "iPhone", "lib", libExt);
 				var debugLib = NDLL.getLibraryPath(ndll, "iPhone", "lib", libExt, true);
-				var releaseDest = projectDirectory + "/lib/" + arch + "/lib" + ndll.name + ".a";
-				var debugDest = projectDirectory + "/lib/" + arch + "-debug/lib" + ndll.name + ".a";
+				var releaseDest = projectDirectory + "/lib/" + arch + simflag + "/lib" + ndll.name + ".a";
+				var debugDest = projectDirectory + "/lib/" + arch + simflag + "-debug/lib" + ndll.name + ".a";
 
 				if (!FileSystem.exists(releaseLib))
 				{
@@ -910,7 +911,7 @@ class IOSPlatform extends PlatformTarget
 						fileName = "lib" + fileName;
 					}
 
-					copyIfNewer(dependency.path, projectDirectory + "/lib/" + arch + "/" + fileName);
+					copyIfNewer(dependency.path, projectDirectory + "/lib/" + arch + simflag + "/" + fileName);
 				}
 			}
 		}
