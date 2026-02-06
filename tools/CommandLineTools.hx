@@ -1854,6 +1854,7 @@ class CommandLineTools
 		if (overrides.architectures.length > 0)
 		{
 			project.architectures = overrides.architectures;
+			project.explicitArchitectures = true;
 		}
 
 		for (key in projectDefines.keys())

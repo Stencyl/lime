@@ -96,6 +96,19 @@ class MacPlatform extends PlatformTarget
 				hidden: false,
 				title: ""
 			};
+			
+		if (!project.explicitArchitectures)
+		{
+			switch (System.hostArchitecture)
+			{
+				case ARM64:
+					defaults.architectures = [ARM64];
+				case X64:
+					defaults.architectures = [X64];
+				default:
+					defaults.architectures = [];
+			}
+		}
 
 		defaults.window.allowHighDPI = false;
 

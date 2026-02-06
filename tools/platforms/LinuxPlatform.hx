@@ -89,20 +89,23 @@ class LinuxPlatform extends PlatformTarget
 				title: ""
 			};
 
-		switch (System.hostArchitecture)
+		if (!project.explicitArchitectures)
 		{
-			case ARMV6:
-				defaults.architectures = [ARMV6];
-			case ARMV7:
-				defaults.architectures = [ARMV7];
-			case ARM64:
-				defaults.architectures = [ARM64];
-			case X86:
-				defaults.architectures = [X86];
-			case X64:
-				defaults.architectures = [X64];
-			default:
-				defaults.architectures = [];
+			switch (System.hostArchitecture)
+			{
+				case ARMV6:
+					defaults.architectures = [ARMV6];
+				case ARMV7:
+					defaults.architectures = [ARMV7];
+				case ARM64:
+					defaults.architectures = [ARM64];
+				case X86:
+					defaults.architectures = [X86];
+				case X64:
+					defaults.architectures = [X64];
+				default:
+					defaults.architectures = [];
+			}
 		}
 
 		defaults.window.allowHighDPI = false;

@@ -88,8 +88,12 @@ class TVOSPlatform extends PlatformTarget
 				hidden: false,
 				title: ""
 			};
+			
+		if (!project.explicitArchitectures)
+		{
+			defaults.architectures = [Architecture.ARM64];
+		}
 
-		defaults.architectures = [Architecture.ARM64];
 		defaults.window.width = 0;
 		defaults.window.height = 0;
 		defaults.window.fullscreen = true;

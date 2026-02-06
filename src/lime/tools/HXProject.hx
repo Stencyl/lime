@@ -25,6 +25,7 @@ class HXProject extends Script
 {
 	public var app:ApplicationData;
 	public var architectures:Array<Architecture>;
+	public var explicitArchitectures:Bool;
 	public var assets:Array<Asset>;
 	// public var command:String;
 	public var config:ConfigData;
@@ -221,6 +222,7 @@ class HXProject extends Script
 
 		ObjectTools.copyFields(app, project.app);
 		project.architectures = architectures.copy();
+		project.explicitArchitectures = explicitArchitectures;
 		project.assets = assets.copy();
 
 		for (i in 0...assets.length)

@@ -91,7 +91,10 @@ class IOSPlatform extends PlatformTarget
 				title: ""
 			};
 
-		defaults.architectures = [Architecture.ARM64];
+		if (!project.explicitArchitectures)
+		{
+			defaults.architectures = [Architecture.ARM64];
+		}
 		defaults.window.width = 0;
 		defaults.window.height = 0;
 		defaults.window.fullscreen = true;
