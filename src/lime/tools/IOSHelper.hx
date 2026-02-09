@@ -123,8 +123,14 @@ class IOSHelper
 			"-derivedDataPath",
 			"DerivedData"
 		];
-
-		if (project.targetFlags.exists("simulator"))
+		
+		//destination implies architecture, architecture must not also be specified
+		if(project.targetFlags.exists("destination"))
+		{
+			commands.push("-destination");
+			commands.push("id=" + project.targetFlags.get("destination"));
+		}
+		else if (project.targetFlags.exists("simulator"))
 		{
 			if (project.targetFlags.exists("i386") || project.targetFlags.exists("32") || project.targetFlags.exists("x86_32"))
 			{
