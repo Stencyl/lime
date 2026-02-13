@@ -277,7 +277,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd \"::APP_FILE::/haxe\" && make";
+			shellScript = "cd \"::APP_FILE::/haxe\" && chmod +x parent-ipc.sh && ./parent-ipc.sh";
 		};
 /* End PBXShellScriptBuildPhase section */
 /* Begin PBXSourcesBuildPhase section */
