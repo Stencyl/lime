@@ -134,38 +134,43 @@ class IOSHelper
 			else
 				commands.push("id=" + destination);
 		}
-		else if (project.targetFlags.exists("simulator"))
+		else
 		{
+			var selectedArchs = [];
 			if (project.targetFlags.exists("i386") || project.targetFlags.exists("32") || project.targetFlags.exists("x86_32"))
 			{
-				commands.push("-arch");
-				commands.push("i386");
+				selectedArchs.push("i386");
 			}
-			else if (project.targetFlags.exists("x86_64"))
+			if (project.targetFlags.exists("x86_64"))
+			{
+				selectedArchs.push("x86_64");
+			}
+			if (project.targetFlags.exists("arm64"))
+			{
+				selectedArchs.push("arm64");
+			}
+			if (project.targetFlags.exists("armv7"))
+			{
+				selectedArchs.push("armv7");
+			}
+			if (project.targetFlags.exists("armv7s"))
+			{
+				selectedArchs.push("armv7s");
+			}
+			if (project.targetFlags.exists("arm64"))
+			{
+				selectedArchs.push("arm64");
+			}
+			if(selectedArchs.length == 0)
+			{
+				//project.targetFlags.exists("simulator") could imply x86_64 on intel systems
+				selectedArchs.push("arm64");
+			}
+			for(arch in selectedArchs)
 			{
 				commands.push("-arch");
-				commands.push("x86_64");
+				commands.push(arch);
 			}
-			else
-			{
-				commands.push("-arch");
-				commands.push("arm64");
-			}
-		}
-		else if (project.targetFlags.exists("armv7"))
-		{
-			commands.push("-arch");
-			commands.push("armv7");
-		}
-		else if (project.targetFlags.exists("armv7s"))
-		{
-			commands.push("-arch");
-			commands.push("armv7s");
-		}
-		else if (project.targetFlags.exists("arm64"))
-		{
-			commands.push("-arch");
-			commands.push("arm64");
 		}
 
 		if (project.config.exists("ios.cocoapod"))
