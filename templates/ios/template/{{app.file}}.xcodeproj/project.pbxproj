@@ -396,35 +396,12 @@
 				GCC_PREFIX_HEADER = "::APP_FILE::/::APP_FILE::-Prefix.pch";
 				INFOPLIST_FILE = "::APP_FILE::/::APP_FILE::-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;
-				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = (
+				"LIBPATH[sdk=iphoneos*]" = "$(CURRENT_ARCH)";
+				"LIBPATH[sdk=iphonesimulator*]" = "$(CURRENT_ARCH)-sim";
+				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/arm64-sim-debug\"",
-					"\"$(SRCROOT)/::APP_FILE::/lib/arm64-sim\"",
-				);
-				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = (
-					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/arm64-debug\"",
-					"\"$(SRCROOT)/::APP_FILE::/lib/arm64\"",
-				);
-				"LIBRARY_SEARCH_PATHS[arch=armv6]" = (
-					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/armv6-debug\"",
-					"\"$(SRCROOT)/::APP_FILE::/lib/armv6\"",
-				);
-				"LIBRARY_SEARCH_PATHS[arch=armv7]" = (
-					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/armv7-debug\"",
-					"\"$(SRCROOT)/::APP_FILE::/lib/armv7\"",
-				);
-				"LIBRARY_SEARCH_PATHS[arch=i386]" = (
-					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/i386-sim-debug\"",
-					"\"$(SRCROOT)/::APP_FILE::/lib/i386-sim\"",
-				);
-				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = (
-					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/x86_64-sim-debug\"",
-					"\"$(SRCROOT)/::APP_FILE::/lib/x86_64-sim\"",
+					"\"$(SRCROOT)/::APP_FILE::/lib/$(LIBPATH)-debug\"",
+					"\"$(SRCROOT)/::APP_FILE::/lib/$(LIBPATH)\"",
 				);
 				OTHER_LDFLAGS = (
 					::if HAS_COCOAPODS::"$(inherited)",::end::
@@ -461,29 +438,11 @@
 				GCC_PREFIX_HEADER = "::APP_FILE::/::APP_FILE::-Prefix.pch";
 				INFOPLIST_FILE = "::APP_FILE::/::APP_FILE::-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;
-				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = (
+				"LIBPATH[sdk=iphoneos*]" = "$(CURRENT_ARCH)";
+				"LIBPATH[sdk=iphonesimulator*]" = "$(CURRENT_ARCH)-sim";
+				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/arm64-sim\"",
-				);
-				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = (
-					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/arm64\"",
-				);
-				"LIBRARY_SEARCH_PATHS[arch=armv6]" = (
-					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/armv6\"",
-				);
-				"LIBRARY_SEARCH_PATHS[arch=armv7]" = (
-					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/armv7\"",
-				);
-				"LIBRARY_SEARCH_PATHS[arch=i386]" = (
-					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/i386-sim\"",
-				);
-				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = (
-					"$(inherited)",
-					"\"$(SRCROOT)/::APP_FILE::/lib/x86_64-sim\"",
+					"\"$(SRCROOT)/::APP_FILE::/lib/$(LIBPATH)\"",
 				);
 				OTHER_LDFLAGS = (
 					::if HAS_COCOAPODS::"$(inherited)",::end::
