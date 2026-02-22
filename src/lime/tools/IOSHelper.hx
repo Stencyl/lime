@@ -127,8 +127,12 @@ class IOSHelper
 		//destination implies architecture, architecture must not also be specified
 		if(project.targetFlags.exists("destination"))
 		{
+			var destination = project.targetFlags.get("destination");
 			commands.push("-destination");
-			commands.push("id=" + project.targetFlags.get("destination"));
+			if(destination == "generic")
+				commands.push("generic/platform=iOS");
+			else
+				commands.push("id=" + destination);
 		}
 		else if (project.targetFlags.exists("simulator"))
 		{
