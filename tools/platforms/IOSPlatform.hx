@@ -797,6 +797,11 @@ class IOSPlatform extends PlatformTarget
 		{
 			ProjectHelper.recursiveSmartCopyTemplate(project, "ios/template-cocoapods", targetDirectory, context);
 		}
+		
+		if (project.launchStoryboard == null)
+		{
+			ProjectHelper.recursiveSmartCopyTemplate(project, "ios/template-launchimage", targetDirectory, context);
+		}
 
 		// Recently deprecated template paths
 
