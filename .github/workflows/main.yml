@@ -120,6 +120,7 @@ jobs:
       - name: Rebuild Lime
         run: |
           haxelib run lime rebuild android -release -verbose -nocolor
+          haxelib run lime rebuild android -debug -verbose -nocolor
 
       - name: Upload Release Assets
         env:
@@ -194,6 +195,7 @@ jobs:
             esac
             haxelib run lime config HASHLINK_PATH "$hl_path" -nocolor -nocffi
             haxelib run lime rebuild hl "-$hl_arch" -release -verbose -nocolor -nocffi
+            haxelib run lime rebuild hl "-$hl_arch" -debug -verbose -nocolor -nocffi
           done
 
       - name: Upload Release Assets
@@ -246,6 +248,8 @@ jobs:
         run: |
           haxelib run lime rebuild ios -armv7 -arm64 -release -verbose -nocolor
           haxelib run lime rebuild ios -simulator -x86_64 -arm64 -release -verbose -nocolor
+          haxelib run lime rebuild ios -armv7 -arm64 -debug -verbose -nocolor
+          haxelib run lime rebuild ios -simulator -x86_64 -arm64 -debug -verbose -nocolor
 
       - name: Upload Release Assets
         env:
@@ -297,6 +301,7 @@ jobs:
       - name: Rebuild Lime
         run: |
           haxelib run lime rebuild linux -x86_64 -release -verbose -nocolor
+          haxelib run lime rebuild linux -x86_64 -debug -verbose -nocolor
 
       - name: Upload Release Assets
         env:
@@ -344,6 +349,8 @@ jobs:
         run: |
           haxelib run lime rebuild macos -arm64 -release -verbose -nocolor
           haxelib run lime rebuild macos -x86_64 -release -verbose -nocolor
+          haxelib run lime rebuild macos -arm64 -debug -verbose -nocolor
+          haxelib run lime rebuild macos -x86_64 -debug -verbose -nocolor
 
       - name: Upload Release Assets
         env:
@@ -391,6 +398,7 @@ jobs:
     - name: Rebuild Lime
       run: |
         haxelib run lime rebuild windows -x86_64 -release -verbose -nocolor
+        haxelib run lime rebuild windows -x86_64 -debug -verbose -nocolor
 
     - name: Upload Release Assets
       env:
