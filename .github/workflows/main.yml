@@ -184,7 +184,7 @@ jobs:
           for hl_platform in ${hl_platforms[@]}; do
             hl_artifact="hashlink-$hl_semver-$hl_platform.$hl_extension"
             hl_arch="x86_64"
-            curl "$hl_url_base/$hl_version/$hl_artifact" -o "$hl_artifact"
+            curl -L "$hl_url_base/$hl_version/$hl_artifact" -o "$hl_artifact"
             case "$hl_extension" in
               zip)
                 unzip "$hl_artifact" -d "hashlink-$hl_platform"
