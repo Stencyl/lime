@@ -85,6 +85,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libpulse-dev
+          sudo apt-get install -y libwayland-dev wayland-protocols libxkbcommon-dev libdecor-0-dev
 
       - name: Install Haxe dependencies
         run: |
@@ -156,6 +157,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libpulse-dev
+          sudo apt-get install -y libwayland-dev wayland-protocols libxkbcommon-dev libdecor-0-dev
 
       - name: Install Haxe dependencies
         shell: bash
@@ -281,6 +283,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libpulse-dev
+          sudo apt-get install -y libwayland-dev wayland-protocols libxkbcommon-dev libdecor-0-dev
 
       - name: Install Haxe dependencies
         run: |

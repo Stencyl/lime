@@ -461,6 +461,12 @@
 				<lib name="-L${HASHLINK_PATH}" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />
 
+				<lib name="-lwayland-client" if="LIME_SDL" />
+				<lib name="-lwayland-cursor" if="LIME_SDL" />
+				<lib name="-lwayland-egl" if="LIME_SDL" />
+				<lib name="-lxkbcommon" if="LIME_SDL" />
+				<lib name="-ldecor-0" if="LIME_SDL" />
+
 			</section>
 
 			<section if="mac">

@@ -101,7 +101,9 @@
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/hidapi/" />
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/video/khronos/" />
         <compilerflag value="-I${SDL_CONFIG_PATH}" if="SDL_CONFIG_PATH" />
-
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/" if="linux" />
+        <compilerflag value="-I/usr/include/libdecor-0/" if="linux" />
+        
         <compilerflag value="-DGL_GLEXT_PROTOTYPES" if="android || rpi" />
         <compilerflag value="-DHAVE_LIBC" />
 
@@ -305,7 +307,7 @@
 
         </section>
 
-        <section if="android || ios || windows || rpi || tvos || mac">
+        <section if="android || ios || windows || linux || rpi || tvos || mac">
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengles/SDL_render_gles.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengles2/SDL_render_gles2.c" />
@@ -351,18 +353,35 @@
 
         </section>
 
-        <section if="LIBSDL_WAYLAND">
+        <section if="linux">
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandclipboard.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylanddatamanager.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylanddyn.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandevents.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandkeyboard.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandmessagebox.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandmouse.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandopengles.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandtouch.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandvideo.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandvulkan.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandwindow.c" />
+
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/fractional-scale-v1-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/idle-inhibit-unstable-v1-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/keyboard-shortcuts-inhibit-unstable-v1-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/pointer-constraints-unstable-v1-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/primary-selection-unstable-v1-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/relative-pointer-unstable-v1-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/tablet-unstable-v2-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/text-input-unstable-v3-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/viewporter-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/wayland-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/xdg-activation-v1-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/xdg-decoration-unstable-v1-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/xdg-output-unstable-v1-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/xdg-shell-protocol.c" />
 
         </section>
 
