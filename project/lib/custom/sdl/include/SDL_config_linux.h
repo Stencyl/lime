@@ -327,7 +327,7 @@
 /* #undef SDL_ALTIVEC_BLITTERS */
 
 #define HAVE_LIBDECOR_H 1
-#define SDL_HAVE_LIBDECOR_GET_MIN_MAX 1
+/* #undef SDL_HAVE_LIBDECOR_GET_MIN_MAX -- not available in ubuntu 22.04 */
 
 #endif //HX_LINUX
 
