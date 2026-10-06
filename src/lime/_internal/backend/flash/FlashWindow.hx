@@ -10,10 +10,13 @@ import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.events.TouchEvent;
 import flash.geom.Matrix;
+import flash.geom.Point;
 import flash.system.Capabilities;
 import flash.ui.Mouse;
 import flash.ui.MouseCursor as FlashMouseCursor;
+import flash.ui.MouseCursorData as FlashMouseCursorData;
 import flash.Lib;
+import flash.Vector;
 import lime.app.Application;
 import lime.graphics.Image;
 import lime.graphics.RenderContext;
@@ -24,6 +27,7 @@ import lime.ui.KeyModifier;
 import lime.ui.Menu;
 import lime.ui.MouseButton;
 import lime.ui.MouseCursor;
+import lime.ui.MouseCursorData;
 import lime.ui.MouseWheelMode;
 import lime.ui.Touch;
 import lime.system.Display;
@@ -33,6 +37,7 @@ import lime.ui.Window;
 
 @:access(lime._internal.backend.flash.FlashApplication)
 @:access(lime.app.Application)
+@:access(lime.graphics.ImageBuffer)
 @:access(lime.graphics.RenderContext)
 @:access(lime.ui.Window)
 class FlashWindow
@@ -519,9 +524,47 @@ class FlashWindow
 		}
 	}
 
+	public function registerCursor(name:String, cursorData:MouseCursorData):Void
+	{
+		#if flash
+		if (name == null || cursorData == null || cursorData.images == null || cursorData.images.length == 0) return;
+
+		var flashCursorData = new FlashMouseCursorData();
+		flashCursorData.hotSpot = new Point(cursorData.hotSpot.x, cursorData.hotSpot.y);
+		flashCursorData.frameRate = cursorData.frameRate;
+
+		var vector = new Vector<BitmapData>();
+		for (image in cursorData.images)
+		{
+			if (image != null && image.buffer != null)
+			{
+				var bd:BitmapData = image.buffer.__srcBitmapData != null ? image.buffer.__srcBitmapData : image.src;
+				if (bd != null)
+				{
+					vector.push(bd);
+				}
+			}
+		}
+
+		if (vector.length > 0)
+		{
+			flashCursorData.data = vector;
+			Mouse.registerCursor(name, flashCursorData);
+		}
+		#end
+	}
+
+	public function unregisterCursor(name:String):Void
+	{
+		#if flash
+		if (name == null) return;
+		Mouse.unregisterCursor(name);
+		#end
+	}
+
 	public function setCursor(value:MouseCursor):MouseCursor
 	{
-		if (cursor != value)
+		if (!Type.enumEq(cursor, value))
 		{
 			if (value == null)
 			{
@@ -536,6 +579,7 @@ class FlashWindow
 
 				Mouse.cursor = switch (value)
 				{
+					case CUSTOM(name): name;
 					case ARROW: FlashMouseCursor.ARROW;
 					case CROSSHAIR: FlashMouseCursor.ARROW;
 					case MOVE: FlashMouseCursor.HAND;

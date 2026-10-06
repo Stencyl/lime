@@ -32,6 +32,7 @@ import lime.ui.Gamepad;
 import lime.ui.Joystick;
 import lime.ui.Menu;
 import lime.ui.MouseCursor;
+import lime.ui.MouseCursorData;
 import lime.ui.MouseWheelMode;
 import lime.ui.Touch;
 import lime.ui.Window;
@@ -40,6 +41,7 @@ import lime.ui.Window;
 @:access(lime._internal.backend.html5.HTML5WebGL2RenderContext)
 @:access(lime.app.Application)
 @:access(lime.graphics.opengl.GL)
+@:access(lime.graphics.ImageBuffer)
 @:access(lime.graphics.OpenGLRenderContext)
 @:access(lime.graphics.RenderContext)
 @:access(lime.ui.Gamepad)
@@ -85,6 +87,8 @@ class HTML5Window
 	private var __focusPending:Bool;
 
 	private var __stopMousePropagation = false;
+	private var __customCursors:Map<String, { frames:Array<String>, frameRate:Float }>;
+	private var __cursorAnimationTimer:Timer;
 
 	public function new(parent:Window)
 	{
@@ -1104,30 +1108,140 @@ class HTML5Window
 		}
 	}
 
+	public function registerCursor(name:String, cursorData:MouseCursorData):Void
+	{
+		if (name == null || cursorData == null || cursorData.images == null || cursorData.images.length == 0) return;
+
+		if (__customCursors == null)
+		{
+			__customCursors = new Map();
+		}
+
+		var frames = new Array<String>();
+		var hotX = Std.int(cursorData.hotSpot.x);
+		var hotY = Std.int(cursorData.hotSpot.y);
+
+		for (image in cursorData.images)
+		{
+			if (image != null)
+			{
+				ImageCanvasUtil.convertToCanvas(image);
+				var src:CanvasElement = cast(image.buffer.__srcCanvas != null ? image.buffer.__srcCanvas : image.buffer.src);
+				if (src != null)
+				{
+					var dataURL = src.toDataURL("image/png");
+					frames.push('url("' + dataURL + '") ' + hotX + ' ' + hotY + ', auto');
+				}
+			}
+		}
+
+		if (frames.length > 0)
+		{
+			__customCursors.set(name, {frames: frames, frameRate: cursorData.frameRate});
+
+			switch (cursor)
+			{
+				case CUSTOM(cName) if (cName == name):
+					__applyCustomCursor(name);
+				default:
+			}
+		}
+	}
+
+	public function unregisterCursor(name:String):Void
+	{
+		if (name == null || __customCursors == null) return;
+
+		__customCursors.remove(name);
+
+		switch (cursor)
+		{
+			case CUSTOM(cName) if (cName == name):
+				setCursor(DEFAULT);
+			default:
+		}
+	}
+
+	private function __applyCustomCursor(name:String):Void
+	{
+		if (__cursorAnimationTimer != null)
+		{
+			__cursorAnimationTimer.stop();
+			__cursorAnimationTimer = null;
+		}
+
+		if (__customCursors != null && __customCursors.exists(name))
+		{
+			var data = __customCursors.get(name);
+			if (data.frames.length == 1 || data.frameRate <= 0)
+			{
+				parent.element.style.cursor = data.frames[0];
+			}
+			else
+			{
+				var frameIndex = 0;
+				parent.element.style.cursor = data.frames[0];
+				var intervalMs = Math.round(1000 / data.frameRate);
+				if (intervalMs < 16) intervalMs = 16;
+
+				__cursorAnimationTimer = new Timer(intervalMs);
+				__cursorAnimationTimer.run = function()
+				{
+					frameIndex = (frameIndex + 1) % data.frames.length;
+					parent.element.style.cursor = data.frames[frameIndex];
+				};
+			}
+		}
+		else
+		{
+			parent.element.style.cursor = "auto";
+		}
+	}
+
 	public function setCursor(value:MouseCursor):MouseCursor
 	{
-		if (cursor != value)
+		if (!Type.enumEq(cursor, value))
 		{
+			if (__cursorAnimationTimer != null)
+			{
+				__cursorAnimationTimer.stop();
+				__cursorAnimationTimer = null;
+			}
+
 			if (value == null)
 			{
 				parent.element.style.cursor = "none";
 			}
 			else
 			{
-				parent.element.style.cursor = switch (value)
+				switch (value)
 				{
-					case ARROW: "default";
-					case CROSSHAIR: "crosshair";
-					case MOVE: "move";
-					case POINTER: "pointer";
-					case RESIZE_NESW: "nesw-resize";
-					case RESIZE_NS: "ns-resize";
-					case RESIZE_NWSE: "nwse-resize";
-					case RESIZE_WE: "ew-resize";
-					case TEXT: "text";
-					case WAIT: "wait";
-					case WAIT_ARROW: "wait";
-					default: "auto";
+					case CUSTOM(name):
+						__applyCustomCursor(name);
+					case ARROW:
+						parent.element.style.cursor = "default";
+					case CROSSHAIR:
+						parent.element.style.cursor = "crosshair";
+					case MOVE:
+						parent.element.style.cursor = "move";
+					case POINTER:
+						parent.element.style.cursor = "pointer";
+					case RESIZE_NESW:
+						parent.element.style.cursor = "nesw-resize";
+					case RESIZE_NS:
+						parent.element.style.cursor = "ns-resize";
+					case RESIZE_NWSE:
+						parent.element.style.cursor = "nwse-resize";
+					case RESIZE_WE:
+						parent.element.style.cursor = "ew-resize";
+					case TEXT:
+						parent.element.style.cursor = "text";
+					case WAIT:
+						parent.element.style.cursor = "wait";
+					case WAIT_ARROW:
+						parent.element.style.cursor = "wait";
+					default:
+						parent.element.style.cursor = "auto";
 				}
 			}
 

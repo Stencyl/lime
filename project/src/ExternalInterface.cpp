@@ -13567,6 +13567,61 @@ namespace lime {
 	}
 
 
+	void lime_window_set_custom_cursor (value window, HxString name) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		const char* nameUtf8 = hxs_utf8 (name, nullptr);
+		targetWindow->SetCustomCursor (nameUtf8);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_custom_cursor) (HL_CFFIPointer* window, hl_vstring* name) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		const char* nameUtf8 = (const char*)hl_to_utf8 (name->bytes);
+		targetWindow->SetCustomCursor (nameUtf8);
+
+	}
+
+
+	void lime_window_register_cursor (value window, HxString name, value buffer, int hotSpotX, int hotSpotY) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		const char* nameUtf8 = hxs_utf8 (name, nullptr);
+		ImageBuffer imageBuffer = ImageBuffer (buffer);
+		targetWindow->RegisterCursor (nameUtf8, &imageBuffer, hotSpotX, hotSpotY);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_register_cursor) (HL_CFFIPointer* window, hl_vstring* name, ImageBuffer* buffer, int hotSpotX, int hotSpotY) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		const char* nameUtf8 = (const char*)hl_to_utf8 (name->bytes);
+		targetWindow->RegisterCursor (nameUtf8, buffer, hotSpotX, hotSpotY);
+
+	}
+
+
+	void lime_window_unregister_cursor (value window, HxString name) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		const char* nameUtf8 = hxs_utf8 (name, nullptr);
+		targetWindow->UnregisterCursor (nameUtf8);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_unregister_cursor) (HL_CFFIPointer* window, hl_vstring* name) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		const char* nameUtf8 = (const char*)hl_to_utf8 (name->bytes);
+		targetWindow->UnregisterCursor (nameUtf8);
+
+	}
+
+
 	value lime_window_set_display_mode (value window, value displayMode) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -14300,6 +14355,9 @@ namespace lime {
 	DEFINE_PRIME3v (lime_window_set_maximum_size);
 	DEFINE_PRIME2 (lime_window_set_borderless);
 	DEFINE_PRIME2v (lime_window_set_cursor);
+	DEFINE_PRIME2v (lime_window_set_custom_cursor);
+	DEFINE_PRIME5v (lime_window_register_cursor);
+	DEFINE_PRIME2v (lime_window_unregister_cursor);
 	DEFINE_PRIME2 (lime_window_set_display_mode);
 	DEFINE_PRIME2 (lime_window_set_fullscreen);
 	DEFINE_PRIME2v (lime_window_set_icon);

@@ -811,6 +811,14 @@ namespace lime {
 
 		}
 
+		for (std::map<std::string, SDL_Cursor*>::iterator it = customCursors.begin (); it != customCursors.end (); ++it) {
+
+			SDL_FreeCursor (it->second);
+
+		}
+
+		customCursors.clear ();
+
 	}
 
 
@@ -1577,6 +1585,120 @@ namespace lime {
 			}
 
 			currentCursor = cursor;
+			currentCustomCursor = "";
+
+		}
+
+	}
+
+
+	void SDLWindow::SetCustomCursor (const char* name) {
+
+		if (!name) return;
+
+		std::map<std::string, SDL_Cursor*>::iterator it = customCursors.find (name);
+
+		if (it != customCursors.end ()) {
+
+			if (currentCursor == HIDDEN) {
+
+				SDL_ShowCursor (SDL_ENABLE);
+
+			}
+
+			SDL_SetCursor (it->second);
+			currentCursor = CUSTOM;
+			currentCustomCursor = name;
+
+		}
+
+	}
+
+
+	void SDLWindow::RegisterCursor (const char* name, ImageBuffer *imageBuffer, int hotSpotX, int hotSpotY) {
+
+		if (!name || !imageBuffer) return;
+
+		SDL_PixelFormatEnum pixelFormat;
+
+		switch (imageBuffer->format) {
+
+			case ARGB32:
+
+				pixelFormat = SDL_PIXELFORMAT_ARGB32;
+				break;
+
+			case BGRA32:
+
+				pixelFormat = SDL_PIXELFORMAT_BGRA32;
+				break;
+
+			default:
+
+				pixelFormat = SDL_PIXELFORMAT_RGBA32;
+
+		}
+
+		SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormatFrom (imageBuffer->data->buffer->b, imageBuffer->width, imageBuffer->height, imageBuffer->bitsPerPixel, imageBuffer->Stride (), pixelFormat);
+
+		if (surface) {
+
+			SDL_Cursor *cursor = SDL_CreateColorCursor (surface, hotSpotX, hotSpotY);
+			SDL_FreeSurface (surface);
+
+			if (cursor) {
+
+				std::map<std::string, SDL_Cursor*>::iterator it = customCursors.find (name);
+
+				if (it != customCursors.end ()) {
+
+					if (currentCustomCursor == name) {
+
+						SDL_SetCursor (cursor);
+
+					}
+
+					SDL_FreeCursor (it->second);
+
+				} else if (currentCustomCursor == name) {
+
+					SDL_SetCursor (cursor);
+
+				}
+
+				customCursors[name] = cursor;
+
+			}
+
+		}
+
+	}
+
+
+	void SDLWindow::UnregisterCursor (const char* name) {
+
+		if (!name) return;
+
+		std::map<std::string, SDL_Cursor*>::iterator it = customCursors.find (name);
+
+		if (it != customCursors.end ()) {
+
+			if (currentCustomCursor == name) {
+
+				if (!SDLCursor::arrowCursor) {
+
+					SDLCursor::arrowCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_ARROW);
+
+				}
+
+				SDL_SetCursor (SDLCursor::arrowCursor);
+				currentCursor = DEFAULT;
+				currentCustomCursor = "";
+
+			}
+
+			SDL_FreeCursor (it->second);
+			customCursors.erase (it);
 
 		}
 

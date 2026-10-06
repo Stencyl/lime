@@ -27,6 +27,7 @@ import lime.ui.KeyModifier;
 import lime.ui.Menu;
 import lime.ui.MenuItem;
 import lime.ui.MouseCursor;
+import lime.ui.MouseCursorData;
 import lime.ui.Window;
 import lime.utils.UInt8Array;
 
@@ -576,9 +577,31 @@ class NativeWindow
 		return value;
 	}
 
+	public function registerCursor(name:String, cursorData:MouseCursorData):Void
+	{
+		if (handle == null || cursorData == null || cursorData.images == null || cursorData.images.length == 0) return;
+
+		#if (!macro && lime_cffi)
+		var image = cursorData.images[0];
+		if (image != null && image.buffer != null)
+		{
+			NativeCFFI.lime_window_register_cursor(handle, name, image.buffer, Std.int(cursorData.hotSpot.x), Std.int(cursorData.hotSpot.y));
+		}
+		#end
+	}
+
+	public function unregisterCursor(name:String):Void
+	{
+		if (handle == null || name == null) return;
+
+		#if (!macro && lime_cffi)
+		NativeCFFI.lime_window_unregister_cursor(handle, name);
+		#end
+	}
+
 	public function setCursor(value:MouseCursor):MouseCursor
 	{
-		if (cursor != value)
+		if (!Type.enumEq(cursor, value))
 		{
 			if (value == null)
 			{
@@ -588,26 +611,33 @@ class NativeWindow
 			}
 			else
 			{
-				var type:MouseCursorType = switch (value)
+				switch (value)
 				{
-					case ARROW: ARROW;
-					case CROSSHAIR: CROSSHAIR;
-					case MOVE: MOVE;
-					case POINTER: POINTER;
-					case RESIZE_NESW: RESIZE_NESW;
+					case CUSTOM(name):
+						#if (!macro && lime_cffi)
+						NativeCFFI.lime_window_set_custom_cursor(handle, name);
+						#end
+					default:
+						var type:MouseCursorType = switch (value)
+						{
+							case ARROW: ARROW;
+							case CROSSHAIR: CROSSHAIR;
+							case MOVE: MOVE;
+							case POINTER: POINTER;
+							case RESIZE_NESW: RESIZE_NESW;
+							case RESIZE_NS: RESIZE_NS;
+							case RESIZE_NWSE: RESIZE_NWSE;
+							case RESIZE_WE: RESIZE_WE;
+							case TEXT: TEXT;
+							case WAIT: WAIT;
+							case WAIT_ARROW: WAIT_ARROW;
+							default: DEFAULT;
+						}
 
-					case RESIZE_NS: RESIZE_NS;
-					case RESIZE_NWSE: RESIZE_NWSE;
-					case RESIZE_WE: RESIZE_WE;
-
-					case TEXT: TEXT;
-					case WAIT: WAIT;
-					case WAIT_ARROW: WAIT_ARROW;
-					default: DEFAULT;
+						#if (!macro && lime_cffi)
+						NativeCFFI.lime_window_set_cursor(handle, type);
+						#end
 				}
-				#if (!macro && lime_cffi)
-				NativeCFFI.lime_window_set_cursor(handle, type);
-				#end
 			}
 
 			cursor = value;
