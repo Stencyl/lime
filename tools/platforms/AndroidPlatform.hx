@@ -165,8 +165,16 @@ class AndroidPlatform extends PlatformTarget
 		for (architecture in architectures)
 		{
 			var minSDKVer = project.config.getInt("android.minimum-sdk-version", 21);
-			//PLATFORM define needed for older ndk and gcc toolchain
-			var haxeParams = [hxml, "-D", "android", "-D", 'PLATFORM_NUMBER=$minSDKVer', "-D", 'PLATFORM=android-$minSDKVer'];
+			// PLATFORM define needed for older ndk and gcc toolchain
+			var haxeParams = [
+				hxml,
+				"-D",
+				"android",
+				"-D",
+				'PLATFORM_NUMBER=$minSDKVer',
+				"-D",
+				'PLATFORM=android-$minSDKVer'
+			];
 			var cppParams = ["-Dandroid", '-DPLATFORM_NUMBER=$minSDKVer', '-DPLATFORM=android-$minSDKVer'];
 			var path = sourceSet + "/jniLibs/armeabi";
 			var suffix = ".so";
@@ -263,14 +271,6 @@ class AndroidPlatform extends PlatformTarget
 		AndroidHelper.build(project, destination);
 	}
 
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
-		}
-	}
-
 	public override function deploy():Void
 	{
 		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Android");
@@ -304,7 +304,7 @@ class AndroidPlatform extends PlatformTarget
 		}
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -312,7 +312,8 @@ class AndroidPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -368,8 +369,7 @@ class AndroidPlatform extends PlatformTarget
 
 	public override function rebuild():Void
 	{
-		var armv5 = (/*command == "rebuild" ||*/
-			ArrayTools.containsValue(project.architectures, Architecture.ARMV5)
+		var armv5 = (/*command == "rebuild" ||*/ ArrayTools.containsValue(project.architectures, Architecture.ARMV5)
 			|| ArrayTools.containsValue(project.architectures, Architecture.ARMV6));
 		var armv7 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARMV7));
 		var arm64 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARM64));
@@ -415,18 +415,9 @@ class AndroidPlatform extends PlatformTarget
 
 		// project = project.clone ();
 
-		for (asset in project.assets)
-		{
-			if (asset.embed && asset.sourcePath == "")
-			{
-				var path = Path.combine(targetDirectory + "/obj/tmp", asset.targetPath);
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path);
-				asset.sourcePath = path;
-			}
-		}
-
 		// initialize (project);
+
+		prepareEmbeddedAssets();
 
 		var sourceSet = destination + "/app/src/main";
 		System.mkdir(sourceSet);
@@ -434,36 +425,6 @@ class AndroidPlatform extends PlatformTarget
 		System.mkdir(sourceSet + "/res/drawable-mdpi/");
 		System.mkdir(sourceSet + "/res/drawable-hdpi/");
 		System.mkdir(sourceSet + "/res/drawable-xhdpi/");
-
-		for (asset in project.assets)
-		{
-			if (asset.type != AssetType.TEMPLATE)
-			{
-				var targetPath = "";
-
-				switch (asset.type)
-				{
-					default:
-						// case SOUND, MUSIC:
-
-						// var extension = Path.extension (asset.sourcePath);
-						// asset.flatName += ((extension != "") ? "." + extension : "");
-
-						// asset.resourceName = asset.flatName;
-						targetPath = Path.combine(sourceSet + "/assets/", asset.resourceName);
-
-						// asset.resourceName = asset.id;
-						// targetPath = sourceSet + "/res/raw/" + asset.flatName + "." + Path.extension (asset.targetPath);
-
-						// default:
-
-						// asset.resourceName = asset.flatName;
-						// targetPath = sourceSet + "/assets/" + asset.resourceName;
-				}
-
-				AssetHelper.copyAssetIfNewer(asset, targetPath);
-			}
-		}
 
 		if (project.targetFlags.exists("xml"))
 		{
@@ -479,7 +440,6 @@ class AndroidPlatform extends PlatformTarget
 
 		context.CPP_DIR = targetDirectory + "/obj";
 		context.OUTPUT_DIR = targetDirectory;
-		context.ANDROID_INSTALL_LOCATION = project.config.getString("android.install-location", "auto");
 		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt("android.minimum-sdk-version", 21);
 		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt("android.target-sdk-version", 35);
 		context.ANDROID_EXTENSIONS = project.config.getArrayString("android.extension");
@@ -491,29 +451,54 @@ class AndroidPlatform extends PlatformTarget
 		]);
 		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "8.9");
 		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "8.7.3");
+		context.ANDROID_GRADLE_APPLY_PLUGIN = project.config.getArrayString("android.gradle-apply-plugin");
 		context.ANDROID_USE_ANDROIDX = project.config.getString("android.useAndroidX", "true");
 		context.ANDROID_ENABLE_JETIFIER = project.config.getString("android.enableJetifier", "false");
 		context.ANDROID_GRADLE_PROPERTIES = project.config.getKeyValueArray("android.gradle-properties");
 		context.ANDROID_DISPLAY_CUTOUT = project.config.getString("android.layoutInDisplayCutoutMode", "default");
+		context.ANDROID_VULKAN = project.window.renderType != null && project.window.renderType.toLowerCase() == "vulkan";
+		context.ANDROID_VULKAN_REQUIRED = project.config.getBool("android.vulkan-required", true);
+		context.ANDROID_VULKAN_VERSION = project.config.getString("android.vulkan-version", "0x400003");
 
-		context.ANDROID_APPLICATION = project.config.getKeyValueArray("android.application", {
-			"android:label": project.meta.title,
-			"android:allowBackup": "true",
-			"android:theme": "@android:style/Theme.Material.NoActionBar" + (project.window.fullscreen ? ".Fullscreen" : ""),
-			"android:hardwareAccelerated": "true",
-			"android:enableOnBackInvokedCallback": context.ANDROID_TARGET_SDK_VERSION >= 33 ? "false" : null,
-			"android:allowNativeHeapPointerTagging": context.ANDROID_TARGET_SDK_VERSION >= 30 ? "false" : null
-		});
-		context.ANDROID_ACTIVITY = project.config.getKeyValueArray("android.activity", {
-			"android:name": "MainActivity",
-			"android:exported": "true",
-			"android:launchMode": "singleTask",
-			"android:label": project.meta.title,
-			"android:configChanges": project.config.getArrayString("android.configChanges",
-				["layoutDirection", "locale", "orientation", "uiMode", "screenLayout", "screenSize", "smallestScreenSize", "keyboard", "keyboardHidden", "navigation"])
-				.join("|"),
-			"android:screenOrientation": project.window.orientation == PORTRAIT ? "sensorPortrait" : (project.window.orientation == LANDSCAPE ? "sensorLandscape" : null)
-		});
+		context.ANDROID_MANIFEST = project.config.getKeyValueArray("android.manifest",
+			{
+				"android:versionCode": project.meta.buildNumber,
+				"android:versionName": project.meta.version,
+				"android:installLocation": project.config.getString("android.install-location", "auto")
+			});
+		context.ANDROID_MANIFEST_CHILDREN = project.config.get("android.manifest").xmlChildren;
+		context.ANDROID_APPLICATION = project.config.getKeyValueArray("android.application",
+			{
+				"android:label": project.meta.title,
+				"android:allowBackup": "true",
+				"android:theme": "@android:style/Theme.Material.NoActionBar" + (project.window.fullscreen ? ".Fullscreen" : ""),
+				"android:hardwareAccelerated": "true",
+				"android:enableOnBackInvokedCallback": context.ANDROID_TARGET_SDK_VERSION >= 33 ? "false" : null,
+				"android:allowNativeHeapPointerTagging": context.ANDROID_TARGET_SDK_VERSION >= 30 ? "false" : null
+			});
+		context.ANDROID_APPLICATION_CHILDREN = project.config.get("android.application").xmlChildren;
+		context.ANDROID_ACTIVITY = project.config.getKeyValueArray("android.activity",
+			{
+				"android:name": "MainActivity",
+				"android:exported": "true",
+				"android:launchMode": "singleTask",
+				"android:label": project.meta.title,
+				"android:configChanges": project.config.getArrayString("android.configChanges",
+					[
+						"layoutDirection",
+						"locale",
+						"orientation",
+						"uiMode",
+						"screenLayout",
+						"screenSize",
+						"smallestScreenSize",
+						"keyboard",
+						"keyboardHidden",
+						"navigation"
+					]).join("|"),
+				"android:screenOrientation": project.window.orientation == PORTRAIT ? "sensorPortrait" : (project.window.orientation == LANDSCAPE ? "sensorLandscape" : null)
+			});
+		context.ANDROID_ACTIVITY_CHILDREN = project.config.get("android.activity").xmlChildren;
 		context.ANDROID_ACCEPT_FILE_INTENT = project.config.getArrayString("android.accept-file-intent", []);
 
 		if (!project.environment.exists("ANDROID_SDK") || !project.environment.exists("ANDROID_NDK_ROOT"))
@@ -586,9 +571,7 @@ class AndroidPlatform extends PlatformTarget
 					}
 				}
 			}
-			catch (e:Dynamic)
-			{
-			}
+			catch (e:Dynamic) {}
 		}
 
 		if (Reflect.hasField(context, "KEY_STORE")) context.KEY_STORE = StringTools.replace(context.KEY_STORE, "\\", "\\\\");
@@ -648,7 +631,7 @@ class AndroidPlatform extends PlatformTarget
 					&& !context.HAS_ICON)
 				{
 					context.HAS_ICON = true;
-					context.ANDROID_APPLICATION.push({ key: "android:icon", value: "@drawable/icon" });
+					context.ANDROID_APPLICATION.push({key: "android:icon", value: "@drawable/icon"});
 				}
 			}
 
@@ -698,29 +681,14 @@ class AndroidPlatform extends PlatformTarget
 
 		for (asset in project.assets)
 		{
-			if (asset.type == AssetType.TEMPLATE)
+			if (asset.type != AssetType.TEMPLATE)
 			{
-				var targetPath = Path.combine(destination, asset.targetPath);
-				System.mkdir(Path.directory(targetPath));
-				AssetHelper.copyAsset(asset, targetPath, context);
+				asset.targetPath = asset.resourceName;
 			}
 		}
 
+		copyProjectAssets(destination, sourceSet + "/assets/");
+		
 		System.deleteUntouchedFiles();
-	}
-
-	public override function watch():Void
-	{
-		var hxml = getDisplayHXML();
-		var dirs = hxml.getClassPaths(true);
-
-		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
-			return (!Path.startsWith(dir, outputPath));
-		});
-
-		var command = ProjectHelper.getCurrentCommand();
-		System.watch(command, dirs);
 	}
 }

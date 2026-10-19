@@ -32,5 +32,6 @@ package-lock.json
 node_modules
 !templates/**/node_modules
 .vscode/
+tests/**/bin/
 *.index
 *.snapshot

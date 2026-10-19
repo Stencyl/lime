@@ -85,11 +85,11 @@ class HTML5Helper
 				{
 					suffix += "32";
 				}
-				else if( System.hostArchitecture == ARMV7)
+				else if (System.hostArchitecture == ARMV7)
 				{
 					suffix += "Arm";
 				}
-				else if( System.hostArchitecture == ARM64)
+				else if (System.hostArchitecture == ARM64)
 				{
 					suffix += "Arm64";
 				}
@@ -152,7 +152,8 @@ class HTML5Helper
 			{
 				var executable = "npx";
 				var terser = "terser";
-				if (!project.targetFlags.exists("npx")) {
+				if (!project.targetFlags.exists("npx"))
+				{
 					var suffix = switch (System.hostPlatform)
 					{
 						case WINDOWS: "-windows.exe";
@@ -185,14 +186,7 @@ class HTML5Helper
 					}
 				}
 
-				var args = [
-					terser,
-					sourceFile,
-					"-c",
-					"-m",
-					"-o",
-					tempFile
-				];
+				var args = [terser, sourceFile, "-c", "-m", "-o", tempFile];
 
 				if (FileSystem.exists(sourceFile + ".map"))
 				{
