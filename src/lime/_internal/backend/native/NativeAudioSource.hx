@@ -57,7 +57,6 @@ class NativeAudioSource
 	private var recoveryPending:Bool;
 	private var recoveryPitch:Float;
 	private var recoveryPlaying:Bool;
-	private var recoveryPosition:Vector4;
 	private var recoveryTime:Int;
 	private var sdlSoundStream:CFFIPointer;
 	private var samples:Int;
@@ -636,7 +635,6 @@ class NativeAudioSource
 		recoveryLoops = loops;
 		recoveryPitch = getPitch();
 		recoveryPlaying = playing;
-		recoveryPosition = getPosition().clone();
 		recoveryTime = getCurrentTime();
 
 		if (streamTimer != null)
@@ -691,7 +689,10 @@ class NativeAudioSource
 
 		setGain(recoveryGain);
 		setPitch(recoveryPitch);
-		setPosition(recoveryPosition);
+		if(parent.pan != null)
+			setPan(parent.pan);
+		else if(parent.position != null)
+			setPosition(parent.position);
 		setCurrentTime(recoveryTime);
 		completed = recoveryCompleted;
 
