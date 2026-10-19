@@ -59,6 +59,13 @@ class HTML5AudioSource
 		var cacheVolume = untyped parent.buffer.__srcHowl._volume;
 		untyped parent.buffer.__srcHowl._volume = parent.gain;
 
+		parent.buffer.__srcHowl.once("play", function(id) {
+			if(this.id != id) return;
+			var pos = (time + parent.offset) / 1000;
+			if (pos < 0) pos = 0;
+			parent.buffer.__srcHowl.seek(pos, id);
+		});
+
 		id = parent.buffer.__srcHowl.play();
 
 		untyped parent.buffer.__srcHowl._volume = cacheVolume;
@@ -68,13 +75,6 @@ class HTML5AudioSource
 		if(parent.position != null) setPosition(parent.position);
 		
 		parent.buffer.__srcHowl.on("end", howl_onEnd, id);
-
-		// Calling setCurrentTime causes html5 audio to replay from this position on next frame
-		#if force_html5_audio
-		if (time == 0) setCurrentTime(time);
-		#else
-		setCurrentTime(time);
-		#end
 		#end
 	}
 
