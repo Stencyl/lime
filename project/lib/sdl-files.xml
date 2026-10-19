@@ -369,6 +369,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandvulkan.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandwindow.c" />
 
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/cursor-shape-v1-protocol.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/fractional-scale-v1-protocol.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/idle-inhibit-unstable-v1-protocol.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/keyboard-shortcuts-inhibit-unstable-v1-protocol.c" />
@@ -383,6 +384,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/xdg-decoration-unstable-v1-protocol.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/xdg-output-unstable-v1-protocol.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/xdg-shell-protocol.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/wayland-generated-protocols/xdg-toplevel-icon-v1-protocol.c" />
 
         </section>
 
