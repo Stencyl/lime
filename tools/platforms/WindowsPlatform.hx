@@ -1069,6 +1069,8 @@ class WindowsPlatform extends PlatformTarget
 			}
 		}
 
+		System.copyFileTemplate(project.templatePaths, "cpp/alsoft-config", applicationDirectory + "/alsoft.ini", context);
+
 		/*if (IconHelper.createIcon (project.icons, 32, 32, Path.combine (applicationDirectory, "icon.png"))) {
 
 			context.HAS_ICON = true;

@@ -597,6 +597,8 @@ class MacPlatform extends PlatformTarget
 			ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
 		}
 
+		System.copyFileTemplate(project.templatePaths, "cpp/alsoft-config", contentDirectory + "/.alsoftrc", context);
+
 		System.copyFileTemplate(project.templatePaths, "mac/Info.plist", targetDirectory + "/bin/" + project.app.file + ".app/Contents/Info.plist", context);
 		System.copyFileTemplate(project.templatePaths, "mac/Entitlements.plist",
 			targetDirectory

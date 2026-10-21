@@ -627,6 +627,8 @@ class LinuxPlatform extends PlatformTarget
 
 		context.HAS_ICON = IconHelper.createIcon(icons, 256, 256, Path.combine(applicationDirectory, "icon.png"));
 
+		System.copyFileTemplate(project.templatePaths, "cpp/alsoft-config", applicationDirectory + "/alsoft.conf", context);
+
 		copyProjectAssets(applicationDirectory);
 	}
 
